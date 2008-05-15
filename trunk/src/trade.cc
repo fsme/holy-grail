@@ -16,6 +16,7 @@
 #include <ratestream.hpp>
 #include <rate_stats.h>
 #include <factor.h>
+#include <synchron.h>
 
 using namespace std;
 using namespace cxx;
@@ -29,22 +30,6 @@ void sig_action (int sig_ ///\param sig_ The signal
 ) {
 	logs << notice << "Interrupt by signal " << sig_ << endl;
 	exit (0);
-}
-
-///\brief Clock to second
-inline
- long clock_to_sec ( const std::string& tm_ ///\param tm_ Date-time string
-) {
-	std::string tm (tm_);
-	std::string::size_type pos;
-	for (pos = 0; pos <= tm.size(); ++pos)
-		if (tm [pos] == ':') tm [pos] = ' ';
-
-	int h,m,s;
-	std::stringstream ssec (tm);
-	ssec >> h >> m >> s;
-
-	return h*3600+m*60+s;
 }
 
 ///\brief Clock to second
@@ -101,20 +86,22 @@ int
 try {
 	ti::meter total ("Uptime (sec): ");
 	if (argc < 4)
- 		throw invalid_argument ("Usage: trade -y CCY {/path/to/quotes.log|-}");
+	throw invalid_argument ("Usage: trade {-r} -y CCY {/path/to/quotes.log|-}");
 
-	env::iron.getopt ( argc, argv, "y:r"); ///< r - real deal
+	env::iron.getopt (argc, argv,"ry:");///< r=real deal; y=CCY
 	
 	fx::multi::factor ( iron ["y"]);
 	if ( fx::multi::factor () == 0 )
 		throw invalid_argument ( iron ["y"]+ " CCY unknown");
-	
-	std::string ifname (argv[3]); ///< Input from
+
+	std::string ifname (argv [0]); ///< Input from
 	if ( ifname [0] == '-') ifname = "/dev/stdin";
 
 	ifrate quoteslogfile (ifname);
 	if ( !quoteslogfile .is_open ())
 		throw er::no (ifname+": open error ");
+
+	::srand ( ::time (NULL) );
 
 	std::string quote, rate, timest;
 	float bid, ask;
@@ -134,7 +121,9 @@ try {
 
 			rate_to_float (rate, bid, ask);
 
-			StatRates.push (bid, ask, clock_to_sec (timest));
+			syn::chron::ize (timest);
+
+			StatRates.push (bid, ask);
 		}
 	}
 

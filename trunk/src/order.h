@@ -7,16 +7,15 @@
 #define _DEAL_ORDER_H 1
 
 #include <stdexcept>
+#include <cmath>
 
 #include <boost/thread/mutex.hpp>
 
 #include <logostream.hpp>
-#include <iron.h>
 
 #include <factor.h>
 #include <delta_rate.h>
-#include <url_easy.hpp>
-#include <memparser.hpp>
+#include <request.h>
 
 using namespace std;
 using namespace cxx;
@@ -45,13 +44,18 @@ order (
 	, _is_open (false)
 	, _is_closed (false)
 	, _that_real (try_for_real_)
+	, _this_id (::rand () + 1)
 {}
 
 ///\brief Destroy
 virtual ~order ()
 {
-	if ( is_real() ) master = false;
+	if ( is_real() ) lock_for_real (id(), false);
 }
+
+///\brief Get ID
+///\return Identifier of this
+int32_t id () const { return _this_id;  }
 
 ///\brief Get current Bid
 ///\return Current Bid for deal
@@ -108,29 +112,31 @@ protected:
 
 	int32_t	_trail;		///< Trailing in pips
 	int32_t _profit;	///< At pipies
+	int32_t	_this_id;	///< Identifier of order, random
 
 	bool	_is_open;	///< In the deal
 	bool	_is_closed;	///< Outside
 	bool	_that_real;	///< Real live
 
-static
-	boost::mutex	mut; ///< Lock master's flag is thread protected
-static
-	bool			master; ///< Master's flag
 
-
-///\brief Try lock master's flag for real deal
-void lock_for_real ();
+///\brief Try lock for real deal
+///\return True if locked; False if unlocked
+bool lock_for_real (
+	  const	int32_t id_ ///\param id_ Identifier (random) of order
+	, const bool lock_ ///\param lock_ Lock or unlock
+);
 
 ///\brief Real request for BUY
 ///\return False if fail
 bool
 	real_buy ( float& ask_ ///\param ask_ Real ASK
 ) {
+/*****
 	DealRequest.setURL (APIDemoHost+Echo+"BUY");
 	if ( !DealRequest.request()) return false;
 
 	logs << "" << endl << DealRequest.str() << endl;
+*******/
 	return true;
 }
 
@@ -139,21 +145,16 @@ bool
 bool
 	real_sell ( float& bid_ ///\param bid_ Real BID
 ) {
+/*****
 	DealRequest.setURL (APIDemoHost+Echo+"SELL");
 	if ( !DealRequest.request()) return false;
 
 	logs << "" << endl << DealRequest.str() << endl;
+*****/
 	return true;
 }
 
-private:
-static const std::string APIDemoHost;
-static const std::string Echo;
-
-static url::easy DealRequest;
-
 }; //.order
-
 
 
 ///\class buy
@@ -177,7 +178,8 @@ buy (
 {
 	_ask = bid() + 100.0 / multi::factor();
 	_trailing_stop = ask() + (float) _trail / multi::factor();
-//logs << " CREATE ORDER TO BUY STOP=" << _trailing_stop << " ";
+
+logs << " CREATE ORDER BUY ID=" << id() << " START=" << _trailing_stop << " ";
 }
 
 ///\brief Destroy
@@ -234,12 +236,12 @@ void check (
 		||  (bid_ > _target)
 		)  {
 
-			if ( is_real() && master )
+			if ( is_real())
 			{
 				if ( !real_sell (bid_))
 					throw runtime_error ("Real SELL was FAIL");
 
-				master = false;
+				lock_for_real ( id(), false);
 			}
 
 			delta_rate pf (_open_rate, 0);
@@ -289,12 +291,18 @@ logs << "CLOSE LONG BUY at $" << bid_ << "; PROFIT=" << _profit << "; ";
 
 	if ( ask_ > _trailing_stop ) ///< BUY LONG (ACTION->OPEN)
 	{
-		lock_for_real ();
-		if (master && !real_buy (ask_))
-		{
-			logs << error << "Real BUY was FAIL" << endl;
-			master = false;
-			_that_real = false;
+		
+		if ( lock_for_real (id(), is_real ())
+		) {
+			if ( !real_buy (ask_) )
+			{
+				logs << error << "REAL BUY request was FAIL" << endl;
+				_that_real = false;
+				lock_for_real (id(), is_real());
+			}
+		} else {
+			logs << info << " REAL LOCK for BUY denial " << endl;
+			 _that_real = false;
 		}
 
 		_open_rate = ask_;
@@ -335,7 +343,8 @@ sell (
 {
 	_ask = bid() + 100.0 / multi::factor();
 	_trailing_stop = bid() - (float) _trail / multi::factor();
-//logs << " CREATE ORDER TO SELL STOP=" << _trailing_stop << " ";
+
+logs << " CREATE ORDER SELL ID=" << id() << " START=" << _trailing_stop << " ";
 }
 
 ///\brief Destroy
@@ -390,12 +399,12 @@ void check (
 		if ( ask_ > _trailing_stop  ///< CLOSE SHORT, CHECK PROFIT
 		||  (ask_ < _target)
 		)  {
-			if ( is_real() && master )
+			if ( is_real() )
 			{
 				if ( !real_buy (ask_))
 					throw runtime_error ("Real BUY was FAIL");
 
-				master = false;
+				lock_for_real ( id(), false);
 			}
 
 			delta_rate pf (_ask, 0);
@@ -444,13 +453,19 @@ logs << "CLOSE SHORT SELL at $" << _trailing_stop << "; PROFIT=" << _profit << "
 
 	if ( bid_ < _trailing_stop ) ///< SELL SHORT (ACTION->OPEN)
 	{
-		lock_for_real ();
-		if (master && !real_sell (bid_))
-		{
-			logs << error << "Real SELL was FAIL" << endl;
-			master = false;
-			_that_real = false;
+		if ( lock_for_real (id(), is_real ())
+		) {
+			if ( !real_sell (bid_))
+			{
+				logs << error << "REAL SELL request was FAIL" << endl;
+				_that_real = false;
+				lock_for_real (id(), is_real());
+			}
+		} else {
+		 	_that_real = false;
+			logs << info << " REAL LOCK for SELL was denial " << endl;
 		}
+
 		_open_rate = bid_;
 		_trail = 9;
 		_trailing_stop = ask_ + (float) _trail / multi::factor();

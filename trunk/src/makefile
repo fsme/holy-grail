@@ -35,9 +35,8 @@ ORDER_SRC=\
 	order.h\
 	order.cc\
 	factor.h\
+	request.h\
 	delta_rate.h\
-	url_easy.hpp\
-	memchunk.h\
 	$(LIBCXX)/logostream/logostream.hpp\
 #
 order.o: $(ORDER_SRC)
@@ -83,6 +82,26 @@ MEMCHUNK_SRC=\
 memchunk.o: $(MEMCHUNK_SRC)
 	$(CXX) $(CXXFLAGS) -c memchunk.cc
 
+#------------
+REQUEST_SRC=\
+	request.h\
+	request.cc\
+	url_easy.hpp\
+	memparser.hpp\
+	synchron.h\
+#
+request.o: $(REQUEST_SRC)
+	$(CXX) $(CXXFLAGS) -c request.cc
+
+#------------
+SYNCHRON_SRC=\
+	synchron.h\
+	synchron.cc\
+	$(LIBCXX)/logostream/logostream.hpp\
+#
+synchron.o: $(SYNCHRON_SRC)
+	$(CXX) $(CXXFLAGS) -c synchron.cc
+
 #---------
 RATED_SRC=\
 	rtd.cc\
@@ -109,11 +128,13 @@ rtd: $(RATED_OBJ)
 TRADE_SRC=\
 	order.h\
 	factor.h\
+	synchron.h\
+	request.h\
+	memchunk.h\
 	summ_unit.h\
+	url_easy.hpp\
 	rate_stats.h\
 	ratestream.hpp\
-	url_easy.hpp\
-	memchunk.h\
 	$(LIBCXX)/env/iron.h\
 	$(LIBCXX)/except/er.h\
 	$(LIBCXX)/timeter/timeter.h\
@@ -130,6 +151,8 @@ TRADE_OBJ=\
 	factor.o\
 	summ_unit.o\
 	memchunk.o\
+	synchron.o\
+	request.o\
 	$(LIBCXX)/logostream/logostream.o\
 	$(LIBCXX)/env/iron.o\
 #
@@ -160,7 +183,7 @@ clean clear:
 	rm -rfv $(ALL) $(OBJS) *.core
 
 #
-work:
+res:
 	@echo "`svn diff | grep + | wc -l` lines was added"
 	@echo "`svn diff | grep - | wc -l` lines was removed"
 
