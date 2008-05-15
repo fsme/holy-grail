@@ -1,7 +1,7 @@
 //@(#) Simple sum and simple average
 // Author: Andrew Wingorodov <http://andr.mobi/>
 // Licence: GPLv3
-// $Id: summ_unit.h 31 2008-05-14 18:39:24Z wingorodov $
+// $Id$
 
 #ifndef _SUMM_UNIT_H
 #define _SUMM_UNIT_H 1

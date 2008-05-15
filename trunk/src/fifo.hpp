@@ -1,7 +1,7 @@
 //@(#) FIFO with size is limited
 // Author: Andrew Wingorodov <http://andr.mobi/>
 // Licence: GPLv3
-// $Id: fifo.hpp 27 2008-05-11 11:45:45Z wingorodov $
+// $Id$
 
 #ifndef _FI_FO_H
 #define _FI_FO_H 1

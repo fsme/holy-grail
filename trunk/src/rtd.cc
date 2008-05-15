@@ -1,7 +1,7 @@
 //@(#) Trading robot main, The function 
 // Author: Andrew Wingorodov <http://andr.mobi/>
 // Licence: GPLv3
-// $Id: rtd.cc 21 2008-05-06 21:03:01Z wingorodov $
+// $Id$
 
 #include <signal.h>
 

@@ -1,7 +1,7 @@
 //@(#) Order for deal (header)
 // Author: Andrew Wingorodov <http://andr.mobi/>
 // Licence: GPLv3
-// $Id: order.h 31 2008-05-14 18:39:24Z wingorodov $
+// $Id$
 
 #ifndef _DEAL_ORDER_H
 #define _DEAL_ORDER_H 1

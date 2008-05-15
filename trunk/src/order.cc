@@ -1,7 +1,7 @@
 //@(#) Order for deal (code)
 // Author: Andrew Wingorodov <http://andr.mobi/>
 // Licence: GPLv3
-// $Id: order.cc 31 2008-05-14 18:39:24Z wingorodov $
+// $Id$
 
 #include <order.h>
 #include <iron.h>

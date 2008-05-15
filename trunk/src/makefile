@@ -1,7 +1,7 @@
 # @(#) Build the robotrade project
 # Author: Andrew Wingorodov <http://andr.mobi/>
 # Licence: GPLv3
-# $Id: makefile 31 2008-05-14 18:39:24Z wingorodov $
+# $Id$
 
 .PHONY: all show clean clear
 

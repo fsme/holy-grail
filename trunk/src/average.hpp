@@ -1,7 +1,7 @@
 //@(#) Simple sum and simple average template
 // Author: Andrew Wingorodov <http://andr.mobi/>
 // Licence: GPLv3
-// $Id: average.hpp 27 2008-05-11 11:45:45Z wingorodov $
+// $Id$
 
 #ifndef _AVE_RAGE_HPP
 #define _AVE_RAGE_HPP 1

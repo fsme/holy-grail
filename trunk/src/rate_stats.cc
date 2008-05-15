@@ -1,7 +1,7 @@
 //@(#) Static last receive rate for global use
 // Author: Andrew Wingorodov <http://andr.mobi/>
 // Licence: GPLv3
-// $Id: rate_stats.cc 26 2008-05-10 20:47:21Z wingorodov $
+// $Id$
 
 #include <rate_stats.h>
 

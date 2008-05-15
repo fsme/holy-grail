@@ -1,7 +1,7 @@
 //@(#) Parse of memory of cURL response
 // Author: Andrew Wingorodov <http://andr.mobi/>
 // Licence: GPLv3
-// $Id: memparser.hpp 19 2008-05-04 21:18:35Z wingorodov $
+// $Id$
 
 #ifndef _MEM_PARSER_HPP
 #define _MEM_PARSER_HPP 1
