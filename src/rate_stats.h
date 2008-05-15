@@ -1,7 +1,7 @@
 //@(#) Rates statistics as a finite state machine
 // Author: Andrew Wingorodov <http://andr.mobi/>
 // Licence: GPLv3
-// $Id: rate_stats.h 31 2008-05-14 18:39:24Z wingorodov $
+// $Id$
 
 #ifndef _STAT_RATES_H
 #define _STAT_RATES_H 1

@@ -1,7 +1,7 @@
 //@(#) Get factor by CCY (code)
 // Author: Andrew Wingorodov <http://andr.mobi/>
 // Licence: GPLv3
-// $Id: factor.cc 22 2008-05-07 19:28:41Z wingorodov $
+// $Id$
 
 #include <sys/types.h> 
 

@@ -1,7 +1,7 @@
 //@(#) Input stream of rates from quotes.log
 // Author: Andrew Wingorodov <http://andr.mobi/>
 // Licence: GPLv3
-// $Id: ratestream.hpp 26 2008-05-10 20:47:21Z wingorodov $
+// $Id$
 
 #ifndef _FX_RATESTREAM_HPP
 #define _FX_RATESTREAM_HPP 1

@@ -1,7 +1,7 @@
 //@(#) Memory for save rate and calculate delta
 // Author: Andrew Wingorodov <http://andr.mobi/>
 // Licence: GPLv3
-// $Id: delta_rate.h 19 2008-05-04 21:18:35Z wingorodov $
+// $Id$
 
 #ifndef _FX_DELTA_RATE_H
 #define _FX_DELTA_RATE_H 1

@@ -1,7 +1,7 @@
 //@(#) Backup robotrade log
 // Author: Andrew Wingorodov <http://andr.mobi/>
 // Licence: GPLv3
-// $Id: baklog.cc 19 2008-05-04 21:18:35Z wingorodov $
+// $Id$
 
 #include <fstream>
 

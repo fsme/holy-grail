@@ -1,7 +1,7 @@
 //@(#) Get multiplies factor by CCY (header)
 // Author: Andrew Wingorodov <http://andr.mobi/>
 // Licence: GPLv3
-// $Id: factor.h 22 2008-05-07 19:28:41Z wingorodov $
+// $Id$
 
 #ifndef _FX_FACTOR_H
 #define _FX_FACTOR_H 1

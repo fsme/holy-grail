@@ -1,7 +1,7 @@
 //@(#) Memory allocation for receive data from cURL 
 // Author: Andrew Wingorodov <http://andr.mobi/>
 // Licence: GPLv3
-// $Id: memchunk.h 31 2008-05-14 18:39:24Z wingorodov $
+// $Id$
 
 #ifndef _MEM_CHUNK_H
 #define _MEM_CHUNK_H 1

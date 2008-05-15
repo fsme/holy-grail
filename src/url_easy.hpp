@@ -1,7 +1,7 @@
 //@(#) Wrapper for curl
 // Author: Andrew Wingorodov <http://andr.mobi/>
 // Licence: GPLv3
-// $Id: url_easy.hpp 31 2008-05-14 18:39:24Z wingorodov $
+// $Id$
 
 #ifndef _URL_EASY_HPP
 #define _URL_EASY_HPP 1

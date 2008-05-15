@@ -1,7 +1,7 @@
 //@(#) Receive data from cURL (code)
 // Author: Andrew Wingorodov <http://andr.mobi/>
 // Licence: GPLv3
-// $Id: memchunk.cc 31 2008-05-14 18:39:24Z wingorodov $
+// $Id$
 
 #include <memchunk.h>
 #include <curl/curl.h>
