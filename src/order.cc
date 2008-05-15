@@ -4,24 +4,35 @@
 // $Id: order.cc 31 2008-05-14 18:39:24Z wingorodov $
 
 #include <order.h>
+#include <iron.h>
 
 namespace deal {
 
-boost::mutex	order::mut;
-bool			order::master = false;
-
-const std::string order::APIDemoHost ("https://api.efxnow.com");
-const std::string order::Echo("/DEMOWebServices2.8/Service.asmx/Echo?Message=");
-url::easy order::DealRequest (APIDemoHost+Echo+"RoboTrade");
-
 //
-void order::lock_for_real ()
+bool order::lock_for_real ( const int32_t id_,  const bool lock_ )
 {
+	static boost::mutex	mut; ///< Lock master's flag is thread protected
+	static int32_t _id = 0; ///< Identifier of order
+
+	if ( !env::iron.exists ("r")) return false;
+
 	boost::mutex::scoped_lock lock (mut);
-	if ( is_real() && !master )
-		master = true;
-	else
-		_that_real = false;
+
+logs << " TRY TO LOCK Id=" << id_ << " Lock=" << boolalpha << lock_ << " COND=" << _id ;
+
+	if ( !lock_ && _id == id_ ) ///< Unlock
+	{
+		_id ^= _id;
+		return false;
+	}
+
+	if ( lock_ && 0 == _id ) ///< Lock
+	{
+		_id = id_;
+		return true;
+	}
+
+	return false;
 }
 
 } //::deal

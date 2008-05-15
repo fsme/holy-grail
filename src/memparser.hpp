@@ -26,11 +26,20 @@ private:
 public:
 	xmlNode* root_node;
 
-	///\brief Create
-	parser () : doc (0) {}
+///\brief Create
+parser () : doc (0) {}
 
-	///\brief Distroy
-	~parser () { clear(); }
+///\brief Create with data
+parser (
+	  const	char* data_ ///\param data_ Pointer to XML data
+	, const ssize_t size_ ///\param size_ Size of XML data
+) : doc (0)
+{
+	parse (data_, size_);
+}
+
+///\brief Distroy
+~parser () { clear(); }
 
 ///\brief Parse memory
 ///\return Root node

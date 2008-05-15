@@ -154,17 +154,11 @@ void unit::make_deal ()
 	if ( _position->is_closed () && sum() == 0 )
 	{
 		if (_position->is_real() )
-{
 			_real_profit += _position->profit();
-logs << " REAL=" << _real_profit ;
-}
 
 		_profit += _position->profit();
 
-		if (_position->profit() > 0)
-			++_prophet;
-		else
-			_prophet = 0;
+		if (_position->profit() > 0) ++_prophet; else --_prophet;
 
 		_position = new deal::idle ( delete_position ());
 	}

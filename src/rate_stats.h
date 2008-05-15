@@ -53,7 +53,6 @@ void
 	push (
 		  const float bid_ ///\param bid_ New bid
 		, const float ask_ ///\param ask_ New ask
-		, const long  tic_ ///\param tic_ UNIX time (sec)
 ) {
 	static delta_rate _bid;
 	static delta_rate _ask;
@@ -61,11 +60,11 @@ void
 	_bid.rehash (bid_);
 	_ask.rehash (ask_);
 
-	BidFIFO.push_back ( _bid.rate);
+	BidFIFO.push_back ( _bid.rate );
 
-	DeltaFIFO.push_back ( _bid.delta);
+	DeltaFIFO.push_back ( _bid.delta );
 
-	AskFIFO.push_back ( _ask.rate);
+	AskFIFO.push_back ( _ask.rate );
 
 	transit ();
 }
