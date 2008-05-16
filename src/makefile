@@ -3,7 +3,7 @@
 # Licence: GPLv3
 # $Id$
 
-.PHONY: all show clean clear
+.PHONY: all show clean clear diff
 
 LIBCXX= ../../../libcxx/trunk/src
 
@@ -183,7 +183,7 @@ clean clear:
 	rm -rfv $(ALL) $(OBJS) *.core
 
 #
-res:
-	@echo "`svn diff | grep + | wc -l` lines was added"
-	@echo "`svn diff | grep - | wc -l` lines was removed"
+diff:
+	@echo "`svn diff | grep ^+ | grep -v 'working copy' | wc -l` + 1 lines was added"
+	@echo "`svn diff | grep ^- | grep -v revision | wc -l` line was removed"
 

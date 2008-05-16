@@ -6,9 +6,9 @@
 #ifndef _URL_EASY_HPP
 #define _URL_EASY_HPP 1
 
-#include <curl/curl.h>
+#include <ctime>
 
-#include <iron.h>
+#include <curl/curl.h>
 
 #include <memchunk.h>
 
@@ -28,12 +28,17 @@ private:
 	CURLcode res;
 	mem::chunk resp;
 
+	time_t _timer; ///< Fixup time to end of request
 public:
+
 
 ///\brief Create
 easy (
 	const std::string& req_ ///\param req_ Request string
-) {
+)
+	: _timer (0)
+
+{
 	init (req_);
 }
 
@@ -76,6 +81,7 @@ bool request ()
 {
 	resp.clear();
 	res = ::curl_easy_perform (curl);
+	_timer = std::time (NULL);
 	if (res == CURLE_OK) return true;
 	//else
 		logs << error <<  ::curl_easy_strerror (res) << endl;
@@ -85,6 +91,10 @@ bool request ()
 ///\brief Get data of response
 ///\return A string with response
 const std::string& str () const { return resp.str(); }
+
+///\brief Get timer
+///\return Timestamp after request (unixtime)
+time_t timer () const { return _timer; }
 
 }; //.class easy
 

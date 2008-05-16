@@ -13,17 +13,25 @@
 #include <synchron.h> 
 
 using namespace std;
+using namespace syn;
 
 namespace re {
 
-///\class quest
+///\class query
 ///\brief Make HTTP request to server
-class quest
+class query
 {
 public:
 
+///\brief Create
+query ()
+	: HttpGet (APIHost+GetTime)
+{
+	clo::ck();
+	get_server_time ();
+}
+
 ///\brief Get server time
-static
 void get_server_time ()
 {
 try {
@@ -36,8 +44,9 @@ try {
 	}
 
 	mem::parser serv_time ( HttpGet.str().data(), HttpGet.str().size());
-	syn::chron::server_time (\
-					 (const char*)serv_time.root_node->children->content
+	clo::ck().server_time (\
+		  (const char*) serv_time.root_node->children->content
+		, HttpGet.timer ()
 	);
 
 } catch (const std::exception& e) {
@@ -46,30 +55,56 @@ try {
 
 }
 
-///\brief Get response
-static
-mem::parser* http_get (
-	const std::string& url_ = "" ///\param url_ URL for request
+///\brief BUY HTTP-request
+bool buy ()
+{
+	logs << " REAL BUY! ";
+	return true;
+}
+
+///\brief Sell HTTP-request
+bool sell ()
+{
+	logs << " REAL SELL! ";
+	return true;
+}
+
+///\brief Echo HTTP-request
+bool echo (
+		const std::string& shout_ = "" ///\param shout_ Text for echo
 ) {
-	static boost::mutex	mut; ///< Thread safe
-
-	boost::mutex::scoped_lock lock (mut);
-
-	if (url_.size() > 8) HttpGet.setURL (url_);
-
-	if ( !HttpGet.request())
-		throw runtime_error (url_ + ": HTTP request error");
-
-	return new mem::parser ( HttpGet.str().data(), HttpGet.str().size() );
+	mem::parser* _resp = response (APIHost+Echo+shout_);
+	logs<< " Echo=" << (const char*)_resp->root_node->children->content << "; ";
+	delete _resp;
+	return true;
 }
 
 private:
-static url::easy HttpGet;
 
-static const std::string APIHost;
-static const std::string GetTime;
+///\brief Get response
+mem::parser* response (
+	const std::string& url_ = "" ///\param url_ URL for request
+);
 
-}; //.quest
+	url::easy HttpGet;
+
+static const string APIHost;
+static const string GetTime;
+static const string Echo;
+
+}; //.query
+
+
+///\class que
+///\brief Static single HTTP request 
+struct que
+{
+	static query& st ()
+	{
+		static query HttpRequest;
+		return HttpRequest;
+	}
+};
 
 } //::re
 

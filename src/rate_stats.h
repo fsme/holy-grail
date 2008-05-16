@@ -41,8 +41,8 @@ rates ( const size_type& size_///\param max_ Size of data set of the rates
 	BidFIFO.max_size (size_);
 	DeltaFIFO.max_size (size_);
 
-	//for ( size_type i = size_; i > 54; --i )
-		ds_units.push_back ( summ::unit (208) );
+	for ( size_type i = size_; i > 54; --i )
+		ds_units.push_back ( summ::unit (i) );
 }
 
 ///\brief Destroy
@@ -92,21 +92,22 @@ logs << "" << BidFIFO [ BidFIFO.size()-1 ] << " ";
 
 		logs << "#" << adder->size()
 //			 << "|" << adder->sum()
-			 << "($" << adder->profit() << ")"
-			 << "<" << adder->prophet() << "> ";
+			 << "($" << adder->profit() << ")";
+//			 << "<" << adder->prophet() << "> ";
 
 //		if ( adder->u_turn())
 //			logs << "<" << adder->direct () << ">"
 //			 	 << "{$" << adder->forecast() << "}";
 
-//	logs << " ";
+	logs << " ";
 
 	}//for
 
-logs << " __$" <<  profit() << "__ " << endl;
+//logs << " __$" <<  profit() << "__ " << endl;
+	logs << "" << endl;
 
 	if (srt)
-		std::sort ( ds_units.begin(), ds_units.end(), summ::more_by_prophet );
+	std::stable_sort ( ds_units.begin(), ds_units.end(), summ::more_by_prophet);
 
 }
 

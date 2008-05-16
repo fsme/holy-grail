@@ -26,7 +26,6 @@ using namespace mem;
 ///	std::string req (APIHost + Echo);
 
 const string APIHost ("https://api.efxnow.com");
-const string Echo ("/DEMOWebServices2.8/Service.asmx/Echo?Message=Xyu");
 const string GetRatesServerAuth (\
 "/DEMOWebServices2.8/Service.asmx/GetRatesServerAuth?UserID=");
 string GetRatesDataSet("/DEMOWebServices2.8/Service.asmx/GetRatesDataSet?Key=");

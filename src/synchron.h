@@ -18,19 +18,58 @@ namespace syn {
 class chron
 {
 public:
-
 ///\brief Convert date from quotes.log and diff with realtime
-static
 void
-	ize ( std::string& datetime ///\param datetime Date-time from quotes.log
+	quote_time ( std::string& date_ ///\param datetime Date as string
 );
 
 ///\brief Synchronize with server time
-static
 void
-	server_time (const std::string& res_///\param res_ HTTP-response of GetTime
+	server_time (
+		  const std::string& res_///\param res_ HTTP-response of GetTime
+		, time_t timer_///\param timer_ Timestamp at request
 );
 
+///\brief Different from realtime to quotes time
+int32_t
+	realtime ()
+{
+	return (_quote_time - ::time (NULL) + _diff);
+}
+
+private:
+
+	time_t	_diff; ///< Different from local time to quotes time
+	time_t	_quote_time; ///< Timestamp from quotes log
+
+
+///\brief Date to UNIX time
+///\return UNIX timestamp (second from 01.01.1970)
+time_t
+	date_to_unixtime ( std::string& date_///\param date_ Date as string YEAR-MONTH-DAY{T| }HOUR:MIN:SEC{-...}
+);
+
+///\brief Synchronized clock with server
+void
+	sync ( time_t diff_///\param srvtime_ Local at request minus server's time
+) {
+	_diff = diff_;
+
+cout << " DIFF=" << _diff << endl;
+}
+
+};
+
+///\class init
+///\brief Static single Clock
+
+struct clo
+{
+	static chron& ck ()
+	{
+		static chron Clock;
+		return Clock;
+	}
 };
 
 } //::syn

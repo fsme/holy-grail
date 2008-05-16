@@ -15,22 +15,49 @@ using namespace cxx;
 namespace syn {
 
 //
-void chron::server_time (const std::string& res_)
-{
-	logs << info << "Init server time " << res_ << endl;
+void chron::server_time (
+		  const std::string& res_
+		, time_t timer_
+) {
+cout << " GetTime=" << res_;
+
+	std::string date_ (res_);
+	replace_if ( date_.begin(), date_.end()
+			, bind2nd ( equal_to<char>(), '/'), '\x20');
+
+	replace_if ( date_.begin(), date_.end()
+			, bind2nd ( equal_to<char>(), ':'), '\x20');
+
+	std::stringstream sst; sst << date_ << endl;
+	std::string yr, mon, day, hr, min, sec, am;
+
+	sst >> mon >> day >> yr >> hr >> min >> sec >> am;
+	if (am == "PM")
+	{
+		int hour;
+		sst << hr << endl;
+		sst >> hour;
+		hour += 12;
+		sst << hour << endl;
+		sst >> hr;
+	}
+
+	date_ = yr+"-"+mon+"-"+day+"T"+hr+":"+min+":"+sec+"-04:00";
+	
+	sync ( timer_ - date_to_unixtime (date_) + (time_t)14400);
 }
 
 //
-void chron::ize ( std::string& datetime )
+time_t chron::date_to_unixtime ( std::string& date_ )
 {
-	replace_if ( datetime.begin(), datetime.end()
+	replace_if ( date_.begin(), date_.end()
 				, bind2nd ( equal_to<char>(), 'T'), '\x20');
 
 	string sdate, stime;
 	struct tm cal;
 	::bzero ( &cal, sizeof (struct tm) );
 
-	std::stringstream sst (datetime);
+	std::stringstream sst (date_);
 	sst >> sdate >> stime;
 
 	replace_if ( sdate.begin(), sdate.end()
@@ -54,7 +81,13 @@ void chron::ize ( std::string& datetime )
 
 	cal.tm_gmtoff = 10800;
 
-	std::mktime (&cal) ;
+	return std::mktime (&cal) ;
+}
+
+//
+void chron::quote_time ( std::string& date_ )
+{
+	_quote_time = date_to_unixtime (date_);
 }
 
 } //::syn
