@@ -131,13 +131,9 @@ bool lock_for_real (
 bool
 	real_buy ( float& ask_ ///\param ask_ Real ASK
 ) {
-/*****
-	DealRequest.setURL (APIDemoHost+Echo+"BUY");
-	if ( !DealRequest.request()) return false;
-
-	logs << "" << endl << DealRequest.str() << endl;
-*******/
-	return true;
+	if ( env::iron.exists ("r")) return re::que::st().buy();
+	//else
+		return re::que::st().echo("BUY");
 }
 
 ///\brief Real request for SELL
@@ -145,13 +141,9 @@ bool
 bool
 	real_sell ( float& bid_ ///\param bid_ Real BID
 ) {
-/*****
-	DealRequest.setURL (APIDemoHost+Echo+"SELL");
-	if ( !DealRequest.request()) return false;
-
-	logs << "" << endl << DealRequest.str() << endl;
-*****/
-	return true;
+	if ( env::iron.exists ("r")) return re::que::st().sell();
+	//else
+		return re::que::st().echo("SELL");
 }
 
 }; //.order

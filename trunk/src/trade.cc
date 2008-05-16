@@ -16,7 +16,7 @@
 #include <ratestream.hpp>
 #include <rate_stats.h>
 #include <factor.h>
-#include <synchron.h>
+#include <request.h>
 
 using namespace std;
 using namespace cxx;
@@ -103,6 +103,8 @@ try {
 
 	::srand ( ::time (NULL) );
 
+	re::que::st();
+
 	std::string quote, rate, timest;
 	float bid, ask;
 
@@ -121,7 +123,7 @@ try {
 
 			rate_to_float (rate, bid, ask);
 
-			syn::chron::ize (timest);
+			clo::ck().quote_time (timest);
 
 			StatRates.push (bid, ask);
 		}
