@@ -18,6 +18,9 @@ namespace syn {
 class chron
 {
 public:
+///\brief Create
+chron () : _lacuna (0x7fffffff) {}
+
 ///\brief Convert date from quotes.log and diff with realtime
 void
 	quote_time ( std::string& date_ ///\param datetime Date as string
@@ -37,10 +40,14 @@ int32_t
 	return (_quote_time - ::time (NULL) + _diff);
 }
 
+///\brief Check out break of time
+int32_t lacuna () { return _lacuna; }
+
 private:
 
 	time_t	_diff; ///< Different from local time to quotes time
 	time_t	_quote_time; ///< Timestamp from quotes log
+	int32_t _lacuna; ///< Break of the time more then 300 sec.
 
 
 ///\brief Date to UNIX time

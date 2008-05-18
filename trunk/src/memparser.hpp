@@ -22,6 +22,7 @@ class parser
 {
 private:
 	xmlDoc *doc;
+	std::string _data;
 	
 public:
 	xmlNode* root_node;
@@ -33,9 +34,10 @@ parser () : doc (0) {}
 parser (
 	  const	char* data_ ///\param data_ Pointer to XML data
 	, const ssize_t size_ ///\param size_ Size of XML data
-) : doc (0)
+)
+	: doc (0)
 {
-	parse (data_, size_);
+	parse ( data_, size_ );
 }
 
 ///\brief Distroy
@@ -44,11 +46,12 @@ parser (
 ///\brief Parse memory
 ///\return Root node
 xmlNode* parse (
-	  const	char* data_ ///\param data_ Pointer to XML data
-	, const ssize_t size_ ///\param size_ Size of XML data
+	  const	char* data_///\param data_ Pointer to XML data
+	, const ssize_t size_///\param size_ Size of XML data
 ) {
+	_data.assign (data_, size_);
 	free_doc ();
-	doc = ::xmlReadMemory ( data_, size_, 0, 0, 0);
+	doc = ::xmlReadMemory ( _data.data(), _data.size(), 0, 0, 0);
 	if (0 >= doc)
 		throw runtime_error ("could not parse XML");
 
@@ -59,6 +62,9 @@ xmlNode* parse (
 
 	return root_node;
 }
+
+///\brief Clean up
+const std::string& str () const { return _data; }
 
 ///\brief Clean up
 void free_doc ()

@@ -8,10 +8,11 @@
 
 #include <math.h>
 
+#include <bitset>
+
 #include <logostream.hpp>
 
 #include <average.hpp>
-
 #include <order.h>
 
 using namespace std;
@@ -52,10 +53,10 @@ virtual
 };
 
 
-///\class direct_rates_fifo
+///\class direct_rates
 ///\brief Direct of last rates
-
-class direct_rates
+class
+	direct_rates
 	: public ave::basic_direct<float>
 	, public fi::fo<float>
 {
@@ -122,6 +123,55 @@ void recalc (
 
 }; //.class direct_rates
 
+///\class history
+///\brief History of forecast
+class
+	history
+{
+	int32_t _size;
+	bitset<128>	_store;
+
+	int8_t	_cond;
+
+public:
+///\brief Create
+history () : _size (0), _cond (3) { _store.reset(); }
+
+///\brief Get current size
+///\return Size of history
+int32_t size () const { return _size; }
+
+///\brief Is ready
+///\return True if best to trade
+bool is_ready () const { return _cond >= 0 && _cond < 3; }
+
+///\brief Save result
+void push (const int32_t profit_///\param profit_ Result of trading
+) {
+//logs << " SAVE PROFIT=" << profit_ << " ";
+	_store.set ( _size++, ( ( profit_ < 0 ) ? false : true ) );
+
+	if ( !_store [size()-1] ) _cond = 0;
+	else
+		++_cond;
+}
+
+///\brief Show bitset
+void print (
+	  const char plus_ = '+'///\param plus_ Show plus as is
+	, const char minus_ = '|'///\param minus_ Show minus as that
+) const {
+	int index = 0;
+	logs << "[";
+	for (; index < size(); ++index)
+	{
+		logs << "" << ( (_store [index]) ? plus_ : minus_ );
+	}
+	logs << "] ";
+}
+
+}; //.history
+
 
 ///\class unit
 ///\brief Sum and simple sums with filling control
@@ -171,6 +221,7 @@ void recalc (
 	  const float bid_ ///\param bid_ Last Bid
 	, const float ask_ ///\param ask_ Last Ask
 	, const fi::fo<int32_t>& fifo_ ///\param fifo_ Delta FIFO primary
+	, const int32_t rating_ ///\param rating_ Raiting of adder
 );
 
 ///\brief
@@ -195,7 +246,35 @@ int32_t conf () const { return _conformity; }
 ///\brief It is ready
 ///\return True if is it
 virtual
-	bool is_ready () const { return sumax.is_full() && sumin.is_full(); }
+	bool is_ready () const { return direct_zero_point.is_full(); }
+
+///\brief Clear statistic
+virtual
+	void clear ()
+{
+	base_fifo::clear();
+	direct_zero_point.clear();
+	sumax.clear();
+	sumin.clear();
+	maxRates.clear();
+	minRates.clear();
+	_last.clear();
+
+///!REFACTIORING
+	if ( _position->is_open()) _position->close ();
+	if ( _position->is_closed())
+	{
+		if (_position->is_real() )
+				_real_profit += _position->profit();
+
+		if (_position->profit() != 0)
+			if (_position->profit() > 0) ++_prophet; else --_prophet;
+		_profit += _position->profit();
+
+		_proph.push (_position->profit());
+	}
+	_position = new deal::idle ( delete_position ());
+}
 
 ///\brief Get size
 ///\return Size
@@ -216,7 +295,7 @@ int32_t
 bool
 	is_cool () const
 {
-	return true; 
+	return size() == 72;
 }
 
 ///\brief Amount of lucrative deals
@@ -254,6 +333,10 @@ void print (
 	sumax.print ("sumax=", col_);
 	sumin.print ("sumax=", col_);
 }
+
+///\brief 
+virtual
+void print_history () const { _proph.print(); }
 
 ///\brief Forecast of profit
 ///\return Forecast of profit in pips
@@ -305,10 +388,12 @@ void make_deal ();
 	int32_t	_profit;
 	int32_t	_real_profit;
 	int32_t	_prophet;
+	int32_t	_rating;
 
 	fi::fo<int32_t> _last;
 
-	deal::order* _position;
+	deal::order*	_position;
+	history			_proph;
 };
 
 ///\brief Compare units by profit

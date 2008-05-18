@@ -25,7 +25,7 @@ public:
 
 ///\brief Create
 query ()
-	: HttpGet (APIHost+GetTime)
+	: HttpGet (APIHost+DemoGetTime)
 {
 	clo::ck();
 	get_server_time ();
@@ -35,7 +35,7 @@ query ()
 void get_server_time ()
 {
 try {
-	HttpGet.setURL (APIHost+GetTime);
+	HttpGet.setURL (APIHost+DemoGetTime);
 	while ( !HttpGet.request ())
 	{
 		logs << error << "Server is unavailable" << endl;
@@ -58,24 +58,57 @@ try {
 ///\brief BUY HTTP-request
 bool buy ()
 {
-	logs << " REAL BUY! ";
+try {
+	string http_get_buy (\
+			  APIHost
+			+ DemoDeal + iron ("fx_demo_user")
+			+ PWD + iron ("fx_demo_pwd")
+			+ Pair + iron ("y")
+			+ Buy + Amount + "100000"
+		);
+	auto_ptr<mem::parser> _resp ( response (http_get_buy) );
+	if (logs << info)
+		logs << "REAL BUY=" << _resp.get()->str() << flush;
+
+} catch (const exception& e) {
+	logs << error << "HTTP BUY ERROR: " << e.what() << endl;
+	return false;
+}
+
 	return true;
 }
 
 ///\brief Sell HTTP-request
 bool sell ()
 {
-	logs << " REAL SELL! ";
+try {
+	string http_get_sell (\
+			  APIHost
+			+ DemoDeal + iron ("fx_demo_user")
+			+ PWD + iron ("fx_demo_pwd")
+			+ Pair + iron ("y")
+			+ Sell + Amount + "100000"
+		);
+	auto_ptr<mem::parser> _resp ( response (http_get_sell) );
+	if (logs << info)
+		logs << "REAL SELL=" << _resp.get()->str() << flush;
+
+} catch (const exception& e) {
+	logs << error << "HTTP SELL ERROR: " << e.what() << endl;
+	return false;
+}
+
 	return true;
 }
 
 ///\brief Echo HTTP-request
 bool echo (
-		const std::string& shout_ = "" ///\param shout_ Text for echo
+		const std::string& shout_ = "CooL" ///\param shout_ Text for echo
 ) {
-	mem::parser* _resp = response (APIHost+Echo+shout_);
-	logs<< " Echo=" << (const char*)_resp->root_node->children->content << "; ";
-	delete _resp;
+	auto_ptr<mem::parser> _resp ( response (APIHost+DemoEcho+shout_) );
+	logs << "Echo="<< (const char*)_resp.get()->root_node->children->content
+		 << endl;
+
 	return true;
 }
 
@@ -89,8 +122,14 @@ mem::parser* response (
 	url::easy HttpGet;
 
 static const string APIHost;
-static const string GetTime;
-static const string Echo;
+static const string DemoGetTime;
+static const string DemoEcho;
+static const string DemoDeal;
+static const string PWD;
+static const string Pair;
+static const string Buy;
+static const string Sell;
+static const string Amount;
 
 }; //.query
 
