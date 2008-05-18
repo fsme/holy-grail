@@ -88,6 +88,10 @@ time_t chron::date_to_unixtime ( std::string& date_ )
 void chron::quote_time ( std::string& date_ )
 {
 	_quote_time = date_to_unixtime (date_);
+	static time_t prev_time = _quote_time;
+
+	_lacuna = (int32_t)(_quote_time - prev_time);
+	prev_time = _quote_time;
 }
 
 } //::syn

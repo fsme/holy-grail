@@ -6,6 +6,8 @@
 #include <summ_unit.h>
 #include <delta_rate.h>
 
+#include <sstream>
+
 using namespace std;
 using namespace cxx;
 using namespace ave;
@@ -32,12 +34,14 @@ void delta_unit::rehash ( const fi::fo<int32_t>& fifo_ ///\param fifo_  ...
 
 //
 void unit::recalc (
-	  const float bid_ ///\param bid_ Last Bid
-	, const float ask_ ///\param ask_ Last Ask
-	, const fi::fo<int32_t>& fifo_ ///\param fifo_ Delta FIFO primary
+	  const float bid_
+	, const float ask_
+	, const fi::fo<int32_t>& fifo_
+	, const int32_t rating_
 ) {
 	last_bid = bid_;
 	last_ask = ask_;
+	_rating = rating_;
 
 	front_adder.rehash (fifo_);
 	push_back ( front_adder.sum ());
@@ -156,9 +160,19 @@ void unit::make_deal ()
 		if (_position->is_real() )
 			_real_profit += _position->profit();
 
+		if (_position->profit() != 0)
+			if (_position->profit() > 0) ++_prophet; else --_prophet;
 		_profit += _position->profit();
 
-		if (_position->profit() > 0) ++_prophet; else --_prophet;
+		_proph.push (_position->profit());
+
+	if (logs << info)
+		logs << "Size=" << size()
+			 << " History=";
+		print_history ();
+		logs << " Profit=" << _position->profit()
+			 << " Real=" << boolalpha << _position->is_real()
+			 << endl;
 
 		_position = new deal::idle ( delete_position ());
 	}

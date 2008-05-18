@@ -46,6 +46,7 @@ order.o: $(ORDER_SRC)
 RATE_STATS_SRC=\
 	factor.h\
 	summ_unit.h\
+	synchron.h\
 	delta_rate.h\
 	rate_stats.h\
 	rate_stats.cc\

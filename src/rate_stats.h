@@ -12,8 +12,8 @@
 
 #include <delta_rate.h>
 #include <factor.h>
-
 #include <summ_unit.h>
+#include <synchron.h>
 
 using namespace std;
 using namespace cxx;
@@ -39,10 +39,11 @@ rates ( const size_type& size_///\param max_ Size of data set of the rates
 {
 	AskFIFO.max_size (size_);
 	BidFIFO.max_size (size_);
-	DeltaFIFO.max_size (size_);
+	DltFIFO.max_size (size_);
 
-	for ( size_type i = size_; i > 54; --i )
-		ds_units.push_back ( summ::unit (i) );
+	//for ( size_type i = size_; i > 33; --i )
+		ds_units.push_back ( summ::unit (69));
+		ds_units.push_back ( summ::unit (72));
 }
 
 ///\brief Destroy
@@ -54,17 +55,23 @@ void
 		  const float bid_ ///\param bid_ New bid
 		, const float ask_ ///\param ask_ New ask
 ) {
-	static delta_rate _bid;
-	static delta_rate _ask;
+	static delta_rate _Bid;
+	static delta_rate _Ask;
 
-	_bid.rehash (bid_);
-	_ask.rehash (ask_);
+	_Bid.rehash (bid_);
+	_Ask.rehash (ask_);
 
-	BidFIFO.push_back ( _bid.rate );
+	if ( clo::ck().lacuna() > 300)
+	{
+		if (logs << info)
+			logs << "Lacuna="<< clo::ck().lacuna() << "; clear stats"
+				 << endl;
+		clear();
+	}	
 
-	DeltaFIFO.push_back ( _bid.delta );
-
-	AskFIFO.push_back ( _ask.rate );
+	BidFIFO.push_back ( _Bid.rate );
+	AskFIFO.push_back ( _Ask.rate );
+	DltFIFO.push_back ( _Bid.delta );
 
 	transit ();
 }
@@ -73,9 +80,11 @@ void
 void
 	transit ()
 {
-logs << "" << BidFIFO [ BidFIFO.size()-1 ] << " "; 
-//	 << "" << AskFIFO [ AskFIFO.size()-1 ] << "  ";
+if (logs << info)
+	logs << "" << BidFIFO [ BidFIFO.size()-1 ] << "/"
+		 << "" << AskFIFO [ AskFIFO.size()-1 ] << " ";
 
+	int32_t prof_ = profit();
 	_profit = 0;
 	vectorDeltaSummFIFO::iterator adder = ds_units.begin();
 	bool srt = false;
@@ -83,31 +92,31 @@ logs << "" << BidFIFO [ BidFIFO.size()-1 ] << " ";
 
 	for (; adder != ds_units.end (); ++adder )
 	{
-		adder->recalc ( BidFIFO.back (), AskFIFO.back (), DeltaFIFO );
+		adder->recalc ( BidFIFO.back (), AskFIFO.back (), DltFIFO, num );
 
 		_profit += adder->real_profit();
 
 	 	if (  adder->is_ready () && adder->sum () == 0) srt = true;
-		if ( !adder->is_ready () || ++num > 6 ) continue;
+		if ( !adder->is_ready () || ++num > 5 ) continue;
 
+	if (logs << info)
 		logs << "#" << adder->size()
-//			 << "|" << adder->sum()
-			 << "($" << adder->profit() << ")";
-//			 << "<" << adder->prophet() << "> ";
-
-//		if ( adder->u_turn())
-//			logs << "<" << adder->direct () << ">"
-//			 	 << "{$" << adder->forecast() << "}";
-
-	logs << " ";
+			 << "|" << adder->sum()
+			 << "($" << adder->profit() << ") ";
 
 	}//for
 
-//logs << " __$" <<  profit() << "__ " << endl;
-	logs << "" << endl;
+	if (logs << info) logs << " " << endl;
+	
+
+	if (prof_ != profit()
+	&& (logs << info)
+	) 	logs << "Result=" << profit() << endl;
+
 
 	if (srt)
-	std::stable_sort ( ds_units.begin(), ds_units.end(), summ::more_by_prophet);
+	std::stable_sort (\
+		 ds_units.begin(), ds_units.end(), summ::more_by_profit );
 
 }
 
@@ -124,7 +133,7 @@ int32_t
 ///\brief Get size
 ///\return Current FIFO size
 size_type
-	size () const { return DeltaFIFO.size(); }
+	size () const { return DltFIFO.size(); }
 
 ///\brief Show queue
 void print (
@@ -144,11 +153,24 @@ bool unitst ()
 private:
 static fi::fo<float>	BidFIFO;	///< FIFO of Bids
 static fi::fo<float>	AskFIFO;	///< FIFO of Asks
-static fi::fo<int32_t>	DeltaFIFO;	///< FIFO of delta
+static fi::fo<int32_t>	DltFIFO;	///< FIFO of delta
 
 	vectorDeltaSummFIFO		ds_units; ///< Delta summs statistic units
 
 	int32_t		_profit;
+
+
+///\brief Clear all statistic
+void clear ()
+{
+	BidFIFO.clear ();
+	DltFIFO.clear ();
+	AskFIFO.clear ();
+
+	vectorDeltaSummFIFO::iterator adder = ds_units.begin();
+	for (; adder != ds_units.end (); ++adder )
+		adder->clear();
+}
 
 }; //.class rates
 

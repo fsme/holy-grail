@@ -85,11 +85,24 @@ int
 
 try {
 	ti::meter total ("Uptime (sec): ");
-	if (argc < 4)
-	throw invalid_argument ("Usage: trade {-r} -y CCY {/path/to/quotes.log|-}");
+	logs.level (level_debug);
 
-	env::iron.getopt (argc, argv,"ry:");///< r=real deal; y=CCY
-	
+	if (argc < 4)
+	throw invalid_argument ("Usage: trade -{rl} -y CCY {/path/to/quotes.log|-}");
+
+	env::iron.getopt (argc, argv,"lry:");///< r=real deal; y=CCY; l= open log
+
+	if ( iron.exists ("l"))
+	{
+		logs.open ("eurusd");
+		if (logs << info)
+		{
+			time_t now_;
+			::time ( &now_);
+			logs << "Start at " << ::ctime (&now_) << endl;
+		}
+	}
+
 	fx::multi::factor ( iron ["y"]);
 	if ( fx::multi::factor () == 0 )
 		throw invalid_argument ( iron ["y"]+ " CCY unknown");

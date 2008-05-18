@@ -94,6 +94,10 @@ bool
 virtual
 	bool ready () const = 0;
 
+///\brief Clear FIFO
+virtual
+	void clear () = 0;
+
 ///\brief Get size
 ///\return Current queue size
 size_type
@@ -182,6 +186,9 @@ const T& front () const { return base_type::queue.front (); }
 ///\return True if it is cleared for action
 virtual
 	bool ready () const { return base_type::is_full (); }
+
+///\brief Clear FIFO
+virtual void clear () { base_type::queue.clear(); } 
 
 ///\brief Show queue
 virtual
