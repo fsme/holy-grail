@@ -25,7 +25,7 @@ public:
 
 ///\brief Create
 query ()
-	: HttpGet (APIHost+DemoGetTime)
+	: HttpGet (APIHost+Demo+GetTime)
 {
 	clo::ck();
 	get_server_time ();
@@ -35,7 +35,7 @@ query ()
 void get_server_time ()
 {
 try {
-	HttpGet.setURL (APIHost+DemoGetTime);
+	HttpGet.setURL (APIHost+Demo+GetTime);
 	while ( !HttpGet.request ())
 	{
 		logs << error << "Server is unavailable" << endl;
@@ -60,8 +60,8 @@ bool buy ()
 {
 try {
 	string http_get_buy (\
-			  APIHost
-			+ DemoDeal + iron ("fx_demo_user")
+			  APIHost + Demo
+			+ Deal + iron ("fx_demo_user")
 			+ PWD + iron ("fx_demo_pwd")
 			+ Pair + iron ("y")
 			+ Buy + Amount + "100000"
@@ -83,8 +83,8 @@ bool sell ()
 {
 try {
 	string http_get_sell (\
-			  APIHost
-			+ DemoDeal + iron ("fx_demo_user")
+			  APIHost + Demo
+			+ Deal + iron ("fx_demo_user")
 			+ PWD + iron ("fx_demo_pwd")
 			+ Pair + iron ("y")
 			+ Sell + Amount + "100000"
@@ -105,31 +105,55 @@ try {
 bool echo (
 		const std::string& shout_ = "CooL" ///\param shout_ Text for echo
 ) {
-	auto_ptr<mem::parser> _resp ( response (APIHost+DemoEcho+shout_) );
+	auto_ptr<mem::parser> _resp ( response (APIHost+Demo+Echo+shout_) );
 	logs << "Echo="<< (const char*)_resp.get()->root_node->children->content
 		 << endl;
 
 	return true;
 }
 
+///\brief Get position blotter as string
+///\return Position blotter
+std::string get_position()
+{
+	auto_ptr<mem::parser> _resp (\
+			 response (APIHost+Demo+GetPositionBlotter+iron("fx_demo_key")) );
+
+	return _resp.get()->str();
+}
+
+///\brief Get margin blotter as string
+///\return Margin blotter
+std::string get_margin()
+{
+	auto_ptr<mem::parser> _resp (\
+			 response (APIHost+Demo+GetMarginBlotter+iron("fx_demo_key")) );
+
+	return _resp.get()->str();
+}
+
 private:
 
 ///\brief Get response
 mem::parser* response (
-	const std::string& url_ = "" ///\param url_ URL for request
+	const std::string& url_ = ""///\param url_ URL for request
 );
 
 	url::easy HttpGet;
 
 static const string APIHost;
-static const string DemoGetTime;
-static const string DemoEcho;
-static const string DemoDeal;
+static const string Demo;
+static const string GetTime;
+static const string Echo;
+static const string Deal;
 static const string PWD;
 static const string Pair;
 static const string Buy;
 static const string Sell;
 static const string Amount;
+
+static const string GetPositionBlotter;
+static const string GetMarginBlotter;
 
 }; //.query
 

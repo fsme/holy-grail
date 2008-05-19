@@ -61,8 +61,6 @@ void
 	sync ( time_t diff_///\param srvtime_ Local at request minus server's time
 ) {
 	_diff = diff_;
-
-cout << " DIFF=" << _diff << endl;
 }
 
 };

@@ -19,7 +19,7 @@ void chron::server_time (
 		  const std::string& res_
 		, time_t timer_
 ) {
-cout << " GetTime=" << res_;
+	logs << info << "ServerTime=" << res_ << endl;
 
 	std::string date_ (res_);
 	replace_if ( date_.begin(), date_.end()

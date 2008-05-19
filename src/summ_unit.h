@@ -197,8 +197,8 @@ unit (
 	, _profit (0)
 	, _real_profit (0)
 	, _prophet(0)
-	, sumax (3)
-	, sumin (3)
+	, sumax (2)
+	, sumin (2)
 	, _last (5)
 	, cur_max (-100000)
 	, cur_min (100000)
@@ -246,7 +246,12 @@ int32_t conf () const { return _conformity; }
 ///\brief It is ready
 ///\return True if is it
 virtual
-	bool is_ready () const { return direct_zero_point.is_full(); }
+	bool is_ready (
+) const {
+	return sumax.is_full()
+		&& sumin.is_full()
+		&& direct_zero_point.is_full();
+}
 
 ///\brief Clear statistic
 virtual
@@ -295,7 +300,7 @@ int32_t
 bool
 	is_cool () const
 {
-	return size() == 72;
+	return size() == 69;
 }
 
 ///\brief Amount of lucrative deals

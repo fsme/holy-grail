@@ -90,7 +90,12 @@ try {
 	if (argc < 4)
 	throw invalid_argument ("Usage: trade -{rl} -y CCY {/path/to/quotes.log|-}");
 
-	env::iron.getopt (argc, argv,"lry:");///< r=real deal; y=CCY; l= open log
+	env::iron.getopt (argc, argv,"c:lry:");///< r=real deal; y=CCY; l= open log
+
+	if ( iron.exists ("c"))
+		iron.configure ( iron ("c"));
+	else
+		iron.configure ("/home/ass/etc/passwd");
 
 	if ( iron.exists ("l"))
 	{

@@ -19,7 +19,7 @@ CXXFLAGS+=\
 
 LDLIBS+= -lcurl -lxml2 -lboost_thread
 
-ALL= rtd trade baklog
+ALL= rtd trade balance
 
 all: trade
 
@@ -162,23 +162,30 @@ trade: $(TRADE_OBJ)
 
 
 ##---------
-BAKLOG_SRC=\
-	 baklog.cc
-BAKLOG_HDR=\
+BALANCE_SRC=\
+	 balance.cc\
 	 $(LIBCXX)/logostream/logostream.hpp\
 	 $(LIBCXX)/env/iron.h\
-
-BAKLOG_OBJ=\
-	 $(LIBCXX)/logostream/logostream.o
 #
-baklog: $(BAKLOG_SRC) $(BAKLOG_HDR) $(BAKLOG_OBJ)
-	$(CXX) $(CXXFLAGS) baklog.cc $(TRADE_OBJS) -o $@ $(LDLIBS)
+balance.o: $(BALANCE_SRC)
+	$(CXX) $(CXXFLAGS) -c balance.cc
+#
+BALANCE_OBJ=\
+	balance.o\
+	request.o\
+	memchunk.o\
+	synchron.o\
+	$(LIBCXX)/env/iron.o\
+	$(LIBCXX)/logostream/logostream.o\
+#
+balance: $(BALANCE_OBJ)
+	$(CXX) $(CXXFLAGS) -o $@ $(BALANCE_OBJ) $(LDLIBS)
 
 #----
 OBJS=\
 	$(RATED_OBJ)\
 	$(TRADE_OBJ)\
-	$(BAKLOG_OBJ)\
+	$(BALANCE_OBJ)\
 #
 clean clear:
 	rm -rfv $(ALL) $(OBJS) *.core

@@ -41,9 +41,8 @@ rates ( const size_type& size_///\param max_ Size of data set of the rates
 	BidFIFO.max_size (size_);
 	DltFIFO.max_size (size_);
 
-	//for ( size_type i = size_; i > 33; --i )
-		ds_units.push_back ( summ::unit (69));
-		ds_units.push_back ( summ::unit (72));
+	for ( size_type i = size_; i > 33; --i )
+		ds_units.push_back ( summ::unit (i));
 }
 
 ///\brief Destroy
@@ -61,7 +60,7 @@ void
 	_Bid.rehash (bid_);
 	_Ask.rehash (ask_);
 
-	if ( clo::ck().lacuna() > 300)
+	if ( clo::ck().lacuna() > 500)
 	{
 		if (logs << info)
 			logs << "Lacuna="<< clo::ck().lacuna() << "; clear stats"
@@ -97,11 +96,11 @@ if (logs << info)
 		_profit += adder->real_profit();
 
 	 	if (  adder->is_ready () && adder->sum () == 0) srt = true;
-		if ( !adder->is_ready () || ++num > 5 ) continue;
+		if ( !adder->is_ready () || ++num > 8 ) continue;
 
 	if (logs << info)
 		logs << "#" << adder->size()
-			 << "|" << adder->sum()
+	//		 << "|" << adder->sum()
 			 << "($" << adder->profit() << ") ";
 
 	}//for
