@@ -307,17 +307,17 @@ void check (
 		) {
 			if ( !real_buy () )
 			{
-				logs << error << "BUY REQUEST FAIL" << endl;
+				logs << error << "REAL Buy request fail" << endl;
 				_that_real = false;
 				unlock_for_real ();
 			}
 		} else {
-			logs << info << "Lock for BUY was denail" << endl;
+			logs << info << "Lock for buy was denail" << endl;
 			 _that_real = false;
 		}
 
 		_open_rate = ask();
-		_trail = 9;
+		_trail = 40;
 		_trailing_stop = bid() - (float) _trail / multi::factor();
 		_target = bid() + 10.0 / multi::factor();
 		_is_open = true;
@@ -488,7 +488,7 @@ void check (
 		) {
 			if ( !real_sell ())
 			{
-				logs << error << "sell request fail" << endl;
+				logs << error << "REAL sell request fail" << endl;
 				_that_real = false;
 				unlock_for_real ();
 			}
@@ -498,7 +498,7 @@ void check (
 		}
 
 		_open_rate = bid();
-		_trail = 9;
+		_trail = 40;
 		_trailing_stop = ask() + (float) _trail / multi::factor();
 		_target = ask() - 10.0 / multi::factor();
 		_is_open = true;
