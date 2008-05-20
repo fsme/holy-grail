@@ -41,8 +41,8 @@ rates ( const size_type& size_///\param max_ Size of data set of the rates
 	BidFIFO.max_size (size_);
 	DltFIFO.max_size (size_);
 
-	for ( size_type i = size_; i > 33; --i )
-		ds_units.push_back ( summ::unit (i));
+	//for ( size_type i = size_; i > 33; --i )
+		ds_units.push_back ( summ::unit (69));
 }
 
 ///\brief Destroy
@@ -80,8 +80,8 @@ void
 	transit ()
 {
 if (logs << info)
-	logs << "" << BidFIFO [ BidFIFO.size()-1 ] << "/"
-		 << "" << AskFIFO [ AskFIFO.size()-1 ] << " ";
+	logs << "" << BidFIFO [ BidFIFO.size()-1 ] << " ";
+	//	 << "" << AskFIFO [ AskFIFO.size()-1 ] << " ";
 
 	int32_t prof_ = profit();
 	_profit = 0;
@@ -96,21 +96,21 @@ if (logs << info)
 		_profit += adder->real_profit();
 
 	 	if (  adder->is_ready () && adder->sum () == 0) srt = true;
-		if ( !adder->is_ready () || ++num > 8 ) continue;
+		if ( !adder->is_ready () || ++num > 3 ) continue;
 
 	if (logs << info)
 		logs << "#" << adder->size()
-	//		 << "|" << adder->sum()
-			 << "($" << adder->profit() << ") ";
+			 << " sum " << adder->sum() 
+			 << " $ " << adder->profit();
+
+	if ( adder->forecast() > 0 )
+		logs << " <" << adder->forecast() << "|" << adder->direct() << "> ";
 
 	}//for
 
-	if (logs << info) logs << " " << endl;
-	
-
-	if (prof_ != profit()
-	&& (logs << info)
-	) 	logs << "Result=" << profit() << endl;
+///	if (prof_ != profit()
+	if (logs << info)
+	 	logs << " result " << profit() << endl;
 
 
 	if (srt)
