@@ -96,12 +96,12 @@ if (logs << info)
 		_profit += adder->real_profit();
 
 	 	if (  adder->is_ready () && adder->sum () == 0) srt = true;
-		if ( !adder->is_ready () || ++num > 3 ) continue;
+		if ( !adder->is_ready () || ++num > 6 ) continue;
 
 	if (logs << info)
-		logs << "#" << adder->size()
-			 << " sum " << adder->sum() 
-			 << " $ " << adder->profit();
+		logs << " #" << adder->size()
+			 << " {" << adder->sum() << "}" 
+			 << " $" << adder->profit();
 
 	if ( adder->forecast() > 0 )
 		logs << " <" << adder->forecast() << "|" << adder->direct() << "> ";
@@ -110,7 +110,7 @@ if (logs << info)
 
 ///	if (prof_ != profit()
 	if (logs << info)
-	 	logs << " result " << profit() << endl;
+	 	logs << " [" << profit() << "]" << endl;
 
 
 	if (srt)
