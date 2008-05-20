@@ -205,7 +205,7 @@ int32_t unit::fill () const
 //
 int32_t unit::forecast () const
 {
-	if ( fill() < 70 ||  !is_ready() || !u_turn()) return 0;
+	if ( !is_ready() || !u_turn()) return 0;
 
 	fx::delta_rate profit_ (last_bid, 0);
 	profit_.rehash (\

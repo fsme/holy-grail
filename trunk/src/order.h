@@ -173,12 +173,12 @@ buy (
 	_ask = bid() + 100.0 / multi::factor();
 	_trailing_stop = ask() + (float) _trail / multi::factor();
 
-//logs << " CREATE ORDER BUY ID=" << id() << " START=" << _trailing_stop << " ";
+logs << " CREATE ORDER BUY ID=" << id() << " START=" << _trailing_stop << " ";
 }
 
 ///\brief Destroy
 virtual ~buy () {
-//logs << " DELETE ORDER BUY ";
+logs << " DELETE ORDER BUY ";
 }
 
 ///\brief Set new trailing for BUY
@@ -356,12 +356,12 @@ sell (
 	_ask = bid() + 100.0 / multi::factor();
 	_trailing_stop = bid() - (float) _trail / multi::factor();
 
-//logs << " CREATE ORDER SELL ID=" << id() << " START=" << _trailing_stop << " ";
+logs << " CREATE ORDER SELL ID=" << id() << " START=" << _trailing_stop << " ";
 }
 
 ///\brief Destroy
 virtual ~sell () {
-//logs << " DELETE ORDER SELL ";
+logs << " DELETE ORDER SELL ";
 }
 
 ///\brief Set trailing for SELL

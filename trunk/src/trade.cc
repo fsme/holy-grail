@@ -72,7 +72,7 @@ inline
 	}
 }
 
-stat::rates StatRates (377);
+stat::rates StatRates (144);
 
 ///\brief Main, The
 int
