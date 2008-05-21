@@ -22,6 +22,7 @@ using namespace std;
 using namespace cxx;
 using namespace env;
 using namespace fx;
+using namespace deal;
 
 bool shut_down = false;
 
@@ -71,8 +72,6 @@ inline
 		break;
 	}
 }
-
-stat::rates StatRates (144);
 
 ///\brief Main, The
 int
@@ -143,7 +142,7 @@ try {
 
 			clo::ck().quote_time (timest);
 
-			StatRates.push (bid, ask);
+			deal::en::gine().push (bid, ask);
 		}
 	}
 
