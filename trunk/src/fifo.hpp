@@ -148,8 +148,11 @@ template <typename T>
 class fo
 	: public basic_fo<T>
 {
-public:
 typedef basic_fo<T>				base_type;
+	using base_type::queue;
+
+public:
+
 typedef size_t					size_type;
 
 ///\brief Create
@@ -188,7 +191,20 @@ virtual
 	bool ready () const { return base_type::is_full (); }
 
 ///\brief Clear FIFO
-virtual void clear () { base_type::queue.clear(); } 
+virtual
+	void clear () { base_type::queue.clear(); } 
+
+///\brief Soft clear (safe 2 last value)
+void soft_clear ()
+{
+	if ( base_type::size() > 0 )
+	{
+		int32_t indx = ( base_type::size() > 1 ) ? 2 : 1;
+		base_type::queue.erase ( queue.begin()+indx, queue.end());
+	}
+	else
+		base_type::queue.clear();
+} 
 
 ///\brief Show queue
 virtual

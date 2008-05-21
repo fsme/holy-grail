@@ -5,6 +5,7 @@
 
 #include <summ_unit.h>
 #include <delta_rate.h>
+#include <stat_fifo.h>
 
 #include <sstream>
 
@@ -12,6 +13,7 @@ using namespace std;
 using namespace cxx;
 using namespace ave;
 using namespace summ;
+using namespace stat;
 
 namespace summ {
 
@@ -30,20 +32,15 @@ void delta_unit::rehash ( const fi::fo<int32_t>& fifo_ ///\param fifo_  ...
 }
 
 
-///\class unit
+//\class unit
 
 //
 void unit::recalc (
-	  const float bid_
-	, const float ask_
-	, const fi::fo<int32_t>& fifo_
-	, const int32_t rating_
+	const int32_t rating_
 ) {
-	last_bid = bid_;
-	last_ask = ask_;
 	_rating = rating_;
 
-	front_adder.rehash (fifo_);
+	front_adder.rehash ( ra::tes().delta() );
 	push_back ( front_adder.sum ());
 }
 
@@ -92,21 +89,21 @@ void unit::rehash (
 			cur_sum_tic = tic;
 		}
 
-		if ( sum() > 0 && max_rate < last_bid )
+		if ( sum() > 0 && max_rate < last_bid() )
 		{
-			max_rate = last_bid;
+			max_rate = last_bid();
 			cur_rate_tic = tic;
 		}
 
-		if ( sum() < 0 && min_rate > last_bid )
+		if ( sum() < 0 && min_rate > last_bid() )
 		{
-			min_rate = last_bid;
+			min_rate = last_bid();
 			cur_rate_tic = tic;
 		}
 
 	} else {
 
-		direct_zero_point.push_back (last_bid);
+		direct_zero_point.push_back ( last_bid());
 
 		if ( _save > 0) {
 			sumax.push_back (cur_max);
@@ -145,15 +142,16 @@ void unit::rehash (
 inline
 void unit::make_deal ()
 {
+	///< Signal disappeared
 	if (!_position->is_closed ()
 	&&   _position->is_action()
 	&&  !_position->is_open()
-	&&	!u_turn() ) ///< Signal disappeared
-	{
-		_position = new deal::idle ( delete_position ());
+	&&	!u_turn()
+	) {
+		_position = new deal::idle ();
 	}
 
-	_position->check (last_bid, last_ask);
+	_position->check ();
 
 	if ( _position->is_closed () && sum() == 0 )
 	{
@@ -166,27 +164,30 @@ void unit::make_deal ()
 
 		_proph.push (_position->profit());
 
-	if (logs << info)
-		logs << "Size=" << size()
-			 << " History=";
-		print_history ();
-		logs << " Profit=" << _position->profit()
-			 << " Real=" << boolalpha << _position->is_real()
-			 << endl;
+		if (logs << info)
+			logs << "Size=" << size()
+				 << " History=";
 
-		_position = new deal::idle ( delete_position ());
+		print_history ();
+
+		if (logs << info)
+			logs << " Profit=" << _position->profit()
+				 << " Real=" << boolalpha << _position->is_real()
+				 << endl;
+
+		_position = new deal::idle ();
 	}
 
 	if ( !_position->is_closed()
 	&&   !_position->is_action()
 	&&   u_turn()
-	&&   forecast() > 0
+	&&   forecast() > 2
 	) {
 		if ( _last.back() > 0 && direct() < -11 )
-			_position = new deal::sell ( delete_position(), 3, is_cool ());
+			_position = new deal::sell ( 3, is_cool ());
 
 		if ( _last.back() < 0 && direct() > 11 )
-			_position = new deal::buy ( delete_position(), 3, is_cool ());
+			_position = new deal::buy ( 3, is_cool ());
 	}
 }
 
@@ -207,7 +208,7 @@ int32_t unit::forecast () const
 {
 	if ( !is_ready() || !u_turn()) return 0;
 
-	fx::delta_rate profit_ (last_bid, 0);
+	fx::delta_rate profit_ ( last_bid(), 0);
 	profit_.rehash (\
 		 ( 0 > _last.back() ) ? maxRates.avrg () : minRates.avrg ()
 	);

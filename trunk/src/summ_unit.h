@@ -123,10 +123,11 @@ void recalc (
 
 }; //.class direct_rates
 
+
 ///\class history
 ///\brief History of forecast
-class
-	history
+
+class history
 {
 	int32_t _size;
 	bitset<128>	_store;
@@ -141,14 +142,9 @@ history () : _size (0), _cond (3) { _store.reset(); }
 ///\return Size of history
 int32_t size () const { return _size; }
 
-///\brief Is ready
-///\return True if best to trade
-bool is_ready () const { return _cond >= 0 && _cond < 3; }
-
 ///\brief Save result
 void push (const int32_t profit_///\param profit_ Result of trading
 ) {
-//logs << " SAVE PROFIT=" << profit_ << " ";
 	_store.set ( _size++, ( ( profit_ < 0 ) ? false : true ) );
 
 	if ( !_store [size()-1] ) _cond = 0;
@@ -217,11 +213,7 @@ unit (
 virtual ~unit () {}
 
 ///\brief Recalculate at new data
-void recalc (
-	  const float bid_ ///\param bid_ Last Bid
-	, const float ask_ ///\param ask_ Last Ask
-	, const fi::fo<int32_t>& fifo_ ///\param fifo_ Delta FIFO primary
-	, const int32_t rating_ ///\param rating_ Raiting of adder
+void recalc ( const int32_t rating_ ///\param rating_ Raiting of adder
 );
 
 ///\brief
@@ -264,21 +256,6 @@ virtual
 	maxRates.clear();
 	minRates.clear();
 	_last.clear();
-
-///!REFACTIORING
-	if ( _position->is_open()) _position->close ();
-	if ( _position->is_closed())
-	{
-		if (_position->is_real() )
-				_real_profit += _position->profit();
-
-		if (_position->profit() != 0)
-			if (_position->profit() > 0) ++_prophet; else --_prophet;
-		_profit += _position->profit();
-
-		_proph.push (_position->profit());
-	}
-	_position = new deal::idle ( delete_position ());
 }
 
 ///\brief Get size
@@ -350,55 +327,41 @@ int32_t forecast () const;
 
 private:
 
-///\brief Clean up position pointer
-float delete_position ()
-{
-	if (_position <= 0) return 0.0;
-
-	float bid_ = _position->bid ();
-	delete _position;
-	_position = 0;
-
-	return bid_;
-}
-
 ///\brief Make deal, check out position
 void make_deal ();
 
-	delta_unit	front_adder; ///< Front-end summ unit
-	float		last_bid;
-	float		last_ask;
+delta_unit	front_adder; ///< Front-end summ unit
 
-	int32_t cur_max;
-	fifo_avrg<int32_t> sumax;
+int32_t cur_max;
+fifo_avrg<int32_t> sumax;
 
-	int32_t cur_min;
-	fifo_avrg<int32_t> sumin;
+int32_t cur_min;
+fifo_avrg<int32_t> sumin;
 
-	float min_rate;
-	fifo_avrg<float> minRates;
+float min_rate;
+fifo_avrg<float> minRates;
 
-	float max_rate;
-	fifo_avrg<float> maxRates;
+float max_rate;
+fifo_avrg<float> maxRates;
 
-	direct_rates direct_zero_point;
+direct_rates direct_zero_point;
 
-	int32_t	tic;
-	int32_t	cur_sum_tic;
-	int32_t	cur_rate_tic;
+int32_t	tic;
+int32_t	cur_sum_tic;
+int32_t	cur_rate_tic;
 
-	int32_t _conformity;
+int32_t _conformity;
 
-	float	_forecast;
-	int32_t	_profit;
-	int32_t	_real_profit;
-	int32_t	_prophet;
-	int32_t	_rating;
+float	_forecast;
+int32_t	_profit;
+int32_t	_real_profit;
+int32_t	_prophet;
+int32_t	_rating;
 
-	fi::fo<int32_t> _last;
+fi::fo<int32_t> _last;
 
-	deal::order*	_position;
-	history			_proph;
+deal::order*	_position;
+history			_proph;
 };
 
 ///\brief Compare units by profit

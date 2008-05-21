@@ -31,6 +31,17 @@ $(LIBCXX)/env/iron.o:
 	cd $(LIBCXX)/env && make iron.o
 
 #---------
+STAT_FIFO_SRC=\
+	fifo.hpp\
+	stat_fifo.h\
+	stat_fifo.cc\
+	delta_rate.h\
+	$(LIBCXX)/logostream/logostream.hpp\
+#
+stat_fifo.o: $(STAT_FIFO_SRC)
+	$(CXX) $(CXXFLAGS) -c stat_fifo.cc
+
+#---------
 ORDER_SRC=\
 	order.h\
 	order.cc\
@@ -48,6 +59,7 @@ RATE_STATS_SRC=\
 	summ_unit.h\
 	synchron.h\
 	delta_rate.h\
+	stat_fifo.h\
 	rate_stats.h\
 	rate_stats.cc\
 	$(LIBCXX)/logostream/logostream.hpp\
@@ -134,6 +146,7 @@ TRADE_SRC=\
 	memchunk.h\
 	summ_unit.h\
 	url_easy.hpp\
+	stat_fifo.h\
 	rate_stats.h\
 	ratestream.hpp\
 	$(LIBCXX)/env/iron.h\
@@ -146,14 +159,15 @@ trade.o: $(TRADE_SRC)
 
 ##--------
 TRADE_OBJ=\
-	trade.o\
 	order.o\
-	rate_stats.o\
+	trade.o\
 	factor.o\
-	summ_unit.o\
+	request.o\
 	memchunk.o\
 	synchron.o\
-	request.o\
+	stat_fifo.o\
+	summ_unit.o\
+	rate_stats.o\
 	$(LIBCXX)/logostream/logostream.o\
 	$(LIBCXX)/env/iron.o\
 #

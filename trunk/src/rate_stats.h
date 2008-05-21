@@ -1,4 +1,4 @@
-//@(#) Rates statistics as a finite state machine
+//@(#) Process a rates statistics
 // Author: Andrew Wingorodov <http://andr.mobi/>
 // Licence: GPLv3
 // $Id$
@@ -10,8 +10,7 @@
 
 #include <logostream.hpp>
 
-#include <delta_rate.h>
-#include <factor.h>
+#include <stat_fifo.h>
 #include <summ_unit.h>
 #include <synchron.h>
 
@@ -33,15 +32,10 @@ typedef	vector<summ::unit>	vectorDeltaSummFIFO;
 public:
 
 ///\brief Create
-rates ( const size_type& size_///\param max_ Size of data set of the rates
-)
+rates ()
 	: _profit (0)
 {
-	AskFIFO.max_size (size_);
-	BidFIFO.max_size (size_);
-	DltFIFO.max_size (size_);
-
-	//for ( size_type i = size_; i > 33; --i )
+	//for ( size_type i = size(); i > 33; --i )
 		ds_units.push_back ( summ::unit (69));
 }
 
@@ -54,23 +48,18 @@ void
 		  const float bid_ ///\param bid_ New bid
 		, const float ask_ ///\param ask_ New ask
 ) {
-	static delta_rate _Bid;
-	static delta_rate _Ask;
+	ra::tes().push ( bid_, ask_ );
 
-	_Bid.rehash (bid_);
-	_Ask.rehash (ask_);
-
-	if ( clo::ck().lacuna() > 500)
-	{
-		if (logs << info)
-			logs << "Lacuna="<< clo::ck().lacuna() << "; clear stats"
-				 << endl;
-		clear();
-	}	
-
-	BidFIFO.push_back ( _Bid.rate );
-	AskFIFO.push_back ( _Ask.rate );
-	DltFIFO.push_back ( _Bid.delta );
+if ( is_ready()
+&&  ( clo::ck().lacuna() > 300 && ( last_delta() > 2 || last_delta() < -2) )
+||  ( last_delta() > 15 || last_delta() < -15 )
+) {
+	if (logs << info)
+		logs << "Lacuna="<< clo::ck().lacuna()
+			 << "; Delta=" << last_delta()
+			 << "; clear statistic" << endl;
+	clear();
+}	
 
 	transit ();
 }
@@ -80,18 +69,18 @@ void
 	transit ()
 {
 if (logs << info)
-	logs << "" << BidFIFO [ BidFIFO.size()-1 ] << " ";
-	//	 << "" << AskFIFO [ AskFIFO.size()-1 ] << " ";
+	logs << "" << last_bid () << "/" << "" << last_ask () << " ";
 
 	int32_t prof_ = profit();
 	_profit = 0;
+
 	vectorDeltaSummFIFO::iterator adder = ds_units.begin();
 	bool srt = false;
 	int num = 0;
 
 	for (; adder != ds_units.end (); ++adder )
 	{
-		adder->recalc ( BidFIFO.back (), AskFIFO.back (), DltFIFO, num );
+		adder->recalc (num);
 
 		_profit += adder->real_profit();
 
@@ -116,7 +105,6 @@ if (logs << info)
 	if (srt)
 	std::stable_sort (\
 		 ds_units.begin(), ds_units.end(), summ::more_by_profit );
-
 }
 
 ///\brief Get real profit
@@ -126,21 +114,13 @@ int32_t
 
 ///\brief Is ready
 ///\return True if cleared for action
-//bool
-//	is_ready () const { return false; }
+bool
+	is_ready () const { return ra::tes().is_ready(); }
 
 ///\brief Get size
 ///\return Current FIFO size
 size_type
-	size () const { return DltFIFO.size(); }
-
-///\brief Show queue
-void print (
-	  const std::string& pre_ = "" ///\param pre_ Prefix before show
-	, const std::string& col_ = " " ///\param col_ Colon for div
-) const {
-	logs << notice  << "STAT RATES PRINT" << endl;
-}
+		size () const { return ra::tes().size(); }
 
 ///\brief Unit test
 ///\return True if OK
@@ -150,29 +130,41 @@ bool unitst ()
 }
 
 private:
-static fi::fo<float>	BidFIFO;	///< FIFO of Bids
-static fi::fo<float>	AskFIFO;	///< FIFO of Asks
-static fi::fo<int32_t>	DltFIFO;	///< FIFO of delta
 
-	vectorDeltaSummFIFO		ds_units; ///< Delta summs statistic units
-
-	int32_t		_profit;
-
+vectorDeltaSummFIFO		ds_units; ///< Delta summs statistic units
+int32_t		_profit;
 
 ///\brief Clear all statistic
 void clear ()
 {
-	BidFIFO.clear ();
-	DltFIFO.clear ();
-	AskFIFO.clear ();
-
 	vectorDeltaSummFIFO::iterator adder = ds_units.begin();
 	for (; adder != ds_units.end (); ++adder )
 		adder->clear();
+
+	ra::tes().clear ();
 }
 
 }; //.class rates
 
+
 } //::stat
+
+
+namespace deal {
+
+///\class eng
+///\brief Auto processing singleton
+
+struct en
+{
+	static stat::rates& gine ()
+	{
+		static stat::rates engine;
+		return engine;
+	}
+
+}; //.class eng
+
+}//::deal
 
 #endif //!_STAT_RATES_H

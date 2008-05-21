@@ -3,6 +3,8 @@
 // Licence: GPLv3
 // $Id$
 
+#include <boost/thread/mutex.hpp>
+
 #include <order.h>
 #include <iron.h>
 
@@ -21,9 +23,9 @@ bool order::lock_for_real ( const bool lock_ )
 
 //logs<< " TRY="<< boolalpha<< lock_ << " LOCK BY="<< id() << " EXISTS="<< _id ;
 
-	if ( !lock_ && _id == id() ) ///< Unlock
+	if ( !lock_ )
 	{
-		_id ^= _id;
+		if ( _id == id() ) _id ^= _id; ///< Unlock
 		return false;
 	}
 
@@ -31,7 +33,8 @@ bool order::lock_for_real ( const bool lock_ )
 	&&  ( clo::ck().realtime() < -2 || clo::ck().realtime() > 1 )
 	)	{
 		if (logs << info)
-			logs << "Lock refuse realtime=" << clo::ck().realtime() << endl;
+			logs << "Lock refuse because realtime=" << clo::ck().realtime()
+				 << endl;
 		 return false;
 	}
 
