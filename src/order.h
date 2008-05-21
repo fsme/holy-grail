@@ -42,6 +42,7 @@ order (
 	, _is_open (false)
 	, _is_closed (false)
 	, _that_real (try_for_real_)
+	, _that_buy (false)
 	, _this_id (::rand () + 1)
 {}
 
@@ -95,15 +96,22 @@ bool is_long () { return _that_buy; }
 virtual
 void close () = 0;
 
-///\brief Set trailing for sell
+///\brief Set trailing
 virtual
 void trail (
 	  const int32_t trail_ ///\param New trailing 
 ) = 0;
 
+///\brief Set trailing stop and the target
+virtual
+void trail_target (
+	  const int32_t trail_ ///\param trail_ New trailing 
+	, const float targ_ ///\param targ_ New trailing 
+) = 0;
+
 ///\brief Check out current rate
 virtual
-void check () = 0;
+void checkout () = 0;
 
 protected:
 	float	_open_rate; ///< Rate save open position
@@ -169,12 +177,12 @@ buy (
 	_that_buy = true;
 	_trailing_stop = last_ask() + (float) _trail / multi::factor();
 
-logs << " CREATE ORDER BUY ID=" << id() << " START=" << trail_stop() << " ";
+//logs << " CREATE ORDER BUY ID=" << id() << " START=" << trail_stop() << " ";
 }
 
 ///\brief Destroy
 virtual ~buy () {
-logs << " DELETE ORDER BUY ";
+//logs << " DELETE ORDER BUY ";
 }
 
 ///\brief Set new trailing for BUY
@@ -193,14 +201,14 @@ void trail (
 	{
 		if ( new_stop > trail_stop() ) { _trailing_stop = new_stop;
 
-logs << "TRAIL for OPEN STOP=" << trail_stop() << " ";
+logs << "TRAIL STOP=" << trail_stop() << " ";
 
 		}
 	}
 	else // is_action ()
 		if ( new_stop < trail_stop() ) { _trailing_stop = new_stop;
 
-logs << "TRAIL ACTION STOP=" << trail_stop() << " ";
+//logs << "TRAIL START=" << trail_stop() << " ";
 			}
 }
 
@@ -222,7 +230,7 @@ virtual
 		pf.rehash ( last_bid());
 		_profit = pf.delta;
 
-logs << "CLOSE LONG BUY at $" << last_bid() << "; PROFIT=" << _profit << "; ";
+//logs << "CLOSE LONG BUY at $" << last_bid() << "; PROFIT=" << _profit << "; ";
 
 		_is_closed = true;
 		_is_open = false;
@@ -231,19 +239,25 @@ logs << "CLOSE LONG BUY at $" << last_bid() << "; PROFIT=" << _profit << "; ";
 	_trail = -1;
 }
 
+///\brief Set trailing stop and the target for close long
+virtual
+void trail_target (
+	  const int32_t trail_ ///\param trail_ New trailing 
+	, const float targ_ ///\param targ_ Update target
+) {
+	_target = last_bid() + targ_ / multi::factor();
+	trail (trail_);
+}
+
 ///\brief Check out current rate for BUY
 virtual
-void check ()
+void checkout ()
 {
 	if ( is_closed () || !is_action() ) return;
 
 	if ( is_open ())
 	{
-		if ( last_bid() > target() ) ///< ZERO size TRAILing stop
-		{
-			_target = last_bid() + 100.0 / multi::factor();
-			trail (0);
-		}
+		if ( last_bid() > target() ) trail_target (0, 7.0);
 
 		if ( last_bid() < trail_stop()  ///< CLOSE LONG
 		||  (last_bid() > target() )
@@ -257,7 +271,7 @@ void check ()
 			float new_stop = last_bid() - (float) _trail / multi::factor();
 			if ( new_stop > trail_stop() ) { _trailing_stop = new_stop; }
 
-logs << "STOP for BUY $" << trail_stop() << " NEW STOP=" << new_stop << " ";
+//logs << "STOP for BUY $" << trail_stop() << " NEW STOP=" << new_stop << " ";
 		}
 
 		return;
@@ -281,12 +295,12 @@ logs << "STOP for BUY $" << trail_stop() << " NEW STOP=" << new_stop << " ";
 		) {
 			if ( !real_buy () )
 			{
-				logs << error << "REAL Buy request fail" << endl;
+				if (logs << error) logs << "Real BUY request fail" << endl;
 				_that_real = false;
 				unlock_for_real ();
 			}
 		} else {
-			logs << info << "Lock for buy was denail" << endl;
+			if (logs << info) logs << "Lock for BUY was denail" << endl;
 			 _that_real = false;
 		}
 
@@ -296,7 +310,7 @@ logs << "STOP for BUY $" << trail_stop() << " NEW STOP=" << new_stop << " ";
 		_target = last_bid() + 10.0 / multi::factor();
 		_is_open = true;
 
-logs << "BUY at $" << _open_rate << " TARGET=" << target() << " ";
+//logs << "BUY at $" << _open_rate << " TARGET=" << target() << " ";
 
 		return;
 	} 
@@ -324,12 +338,12 @@ sell (
 	_that_buy = false;
 	_trailing_stop = last_bid() - (float) _trail / multi::factor();
 
-logs << " CREATE ORDER SELL ID=" << id() << " START=" << trail_stop() << " ";
+//logs << " CREATE ORDER SELL ID=" << id() << " START=" << trail_stop() << " ";
 }
 
 ///\brief Destroy
 virtual ~sell () {
-logs << " DELETE ORDER SELL ";
+//logs << " DELETE ORDER SELL ";
 }
 
 ///\brief Set trailing for SELL
@@ -348,13 +362,13 @@ void trail (
 	{
 		if (new_stop < trail_stop() ) { _trailing_stop = new_stop;
 
-//logs << "TRAIL OPEN STOP=" << trail_stop() << " ";
+logs << "TRAIL STOP=" << trail_stop() << " ";
 		}
 	}
 	else // is_action ()
 		if ( new_stop > trail_stop() ) { _trailing_stop = new_stop;
 
-//logs << "TRAIL ACTION STOP=" << trail_stop() << " ";
+//logs << "TRAIL START=" << trail_stop() << " ";
 			}
 }
 
@@ -376,7 +390,7 @@ virtual
 		pf.rehash (_open_rate);
 		_profit = pf.delta;
 
-logs << "CLOSE SHORT SELL at $" << last_ask() << "; PROFIT=" << profit() << "; ";
+//logs << "CLOSE SHORT SELL at $" << last_ask() << "; PROFIT=" << profit() << "; ";
 		_is_closed = true;
 		_is_open = false;
 	}
@@ -384,19 +398,25 @@ logs << "CLOSE SHORT SELL at $" << last_ask() << "; PROFIT=" << profit() << "; "
 	_trail = -1;
 }
 
+///\brief Set trailing stop and the target for close long
+virtual
+void trail_target (
+	  const int32_t trail_ ///\param trail_ New trailing 
+	, const float targ_ ///\param targ_ Update target
+) {
+	_target = last_ask() - targ_ / multi::factor();
+	trail (trail_);
+}
+
 ///\brief Check out current rate for SELL
 virtual
-void check ()
+void checkout ()
 {
 	if ( is_closed () || !is_action() ) return;
 
 	if ( is_open ())
 	{
-		if ( last_ask() < target() ) ///< ZERO size TRAILing stop
-		{
-			_target = last_ask() - 100.0 / multi::factor();
-			trail (0);
-		}
+		if ( last_ask() < target() ) trail_target (0, 7.0);
 
 		if ( last_ask() > trail_stop()  ///< CLOSE SHORT, CHECK PROFIT
 		||  (last_ask() < target() )
@@ -410,7 +430,7 @@ void check ()
 			float new_stop = last_ask() + (float) _trail / multi::factor();
 			if ( new_stop < trail_stop() ) _trailing_stop = new_stop;
 
-logs << "STOP for SELL $" << trail_stop() << " NEW STOP=" << new_stop << " ";
+//logs << "STOP for SELL $" << trail_stop() << " NEW STOP=" << new_stop << " ";
 		}
 
 		return;
@@ -423,7 +443,7 @@ logs << "STOP for SELL $" << trail_stop() << " NEW STOP=" << new_stop << " ";
 		float new_start = last_bid() - (float) _trail / multi::factor();
 		if ( new_start > trail_stop() ) { _trailing_stop = new_start; }
 
-logs << "start for SELL $" << trail_stop() << "; ";
+//logs << "start for SELL $" << trail_stop() << "; ";
 
 	}
 
@@ -433,13 +453,13 @@ logs << "start for SELL $" << trail_stop() << "; ";
 		) {
 			if ( !real_sell ())
 			{
-				logs << error << "Real SELL request fail" << endl;
+				if (logs << error) logs << "Real SELL request fail" << endl;
 				_that_real = false;
 				unlock_for_real ();
 			}
 		} else {
 		 	_that_real = false;
-			logs << info << "Lock for SELL was denial" << endl;
+			if (logs << warning) logs << "Lock for SELL was denial" << endl;
 		}
 
 		_open_rate = last_bid();
@@ -448,7 +468,7 @@ logs << "start for SELL $" << trail_stop() << "; ";
 		_target = last_ask() - 10.0 / multi::factor();
 		_is_open = true;
 
-logs << "SELL at $" << open_rate() << " TARGET=" << target() << "; ";
+//logs << "SELL at $" << open_rate() << " TARGET=" << target() << "; ";
 		return;
 	} 
 }
@@ -481,11 +501,18 @@ void trail (
 	  const int32_t trail_ = -1 ///\param New trailing 
 ) {}
 
+///\brief Never mind
+virtual
+void trail_target (
+	  const int32_t trail_ ///\param trail_ New trailing 
+	, const float targ_ ///\param targ_ Update target
+) {}
+
 ///\brief Close virtual, never mind
 virtual void close () {}
 
 ///\brief Close virtual, never mind
-virtual void check () {}
+virtual void checkout () {}
 
 }; //.idle
 

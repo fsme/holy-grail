@@ -23,9 +23,10 @@ const string query::Amount("&Amount=");
 
 const string query::GetPositionBlotter("/GetPositionBlotter?Key=");
 const string query::GetMarginBlotter("/GetMarginBlotter?Key=");
+
 //
 mem::parser*
-	query::response ( const std::string& url_ )
+	query::request ( const std::string& url_ )
 {
 	static boost::mutex	mut; ///< Thread safe
 
