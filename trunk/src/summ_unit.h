@@ -203,10 +203,6 @@ unit (
 	, maxRates (3)
 	, min_rate (100000.0)
 	, max_rate (0.0)
-	, _conformity (07777)
-	, tic (0)
-	, cur_sum_tic (0)
-	, cur_rate_tic (0)
 {}
 
 ///\brief Destroy
@@ -230,10 +226,6 @@ void rehash (
 ///\brief Get filling in percent
 ///\return Filling in percent (0-100) 
 int32_t fill () const;
-
-///\brief Conformity rate with sums
-///\return Conformity in pro mil
-int32_t conf () const { return _conformity; }
 
 ///\brief It is ready
 ///\return True if is it
@@ -330,6 +322,8 @@ private:
 ///\brief Make deal, check out position
 void make_deal ();
 
+///\name Data fileds
+///{@
 delta_unit	front_adder; ///< Front-end summ unit
 
 int32_t cur_max;
@@ -346,12 +340,6 @@ fifo_avrg<float> maxRates;
 
 direct_rates direct_zero_point;
 
-int32_t	tic;
-int32_t	cur_sum_tic;
-int32_t	cur_rate_tic;
-
-int32_t _conformity;
-
 float	_forecast;
 int32_t	_profit;
 int32_t	_real_profit;
@@ -362,6 +350,8 @@ fi::fo<int32_t> _last;
 
 deal::order*	_position;
 history			_proph;
+
+///@}
 };
 
 ///\brief Compare units by profit

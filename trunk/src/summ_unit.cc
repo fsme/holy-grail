@@ -53,6 +53,7 @@ void unit::push_back (
 	base_fifo::push_back (sum_);
 	
 	rehash (*this);
+	make_deal ();
 }
 
 
@@ -66,40 +67,22 @@ void unit::rehash (
 	_sum ^= _sum;
 	size_type i = fifo_.size() - base_avrg::size();
 
-	for ( ; i< fifo_.size(); ++i) {
-		_sum += fifo_ [i];
-	}
+	for ( ; i< fifo_.size(); ++i) _sum += fifo_ [i]; //!REFACTORING
 
-	if ( ( sum() > 0 && _save < 0 ) ///< Fixup zero point
-	||   ( sum() < 0 && _save > 0 ) ) _sum ^= _sum;
+	if ( (sum() > 0 && _save < 0)
+	||   (sum() < 0 && _save > 0)
+	)
+	 _sum ^= _sum; ///< Fixup zero point
 
 	_last.push_back (_sum);
 
-	if ( 0 != sum ()) ///< Look up extreme points
+	if ( 0 != sum ()) ///< Extreme points
 	{
-		++tic;
-		if ( sum() > 0 && sum () > cur_max )
-		{
-			cur_max = sum ();
-			cur_sum_tic = tic;
-		}
-		if ( sum() < 0 && sum () < cur_min )
-		{
-			cur_min = sum ();
-			cur_sum_tic = tic;
-		}
+		if ( sum() > 0 && (sum () > cur_max )) cur_max = sum ();
+		if ( sum() < 0 && (sum () < cur_min )) cur_min = sum ();
 
-		if ( sum() > 0 && max_rate < last_bid() )
-		{
-			max_rate = last_bid();
-			cur_rate_tic = tic;
-		}
-
-		if ( sum() < 0 && min_rate > last_bid() )
-		{
-			min_rate = last_bid();
-			cur_rate_tic = tic;
-		}
+		if ( sum() > 0 && (max_rate < last_bid()) ) max_rate = last_bid();
+		if ( sum() < 0 && (min_rate > last_bid()) ) min_rate = last_bid();
 
 	} else {
 
@@ -119,22 +102,7 @@ void unit::rehash (
 			minRates.push_back (min_rate);
 			min_rate = 10000.0;
 		}
-
-		if (tic < base_fifo::size())
-		{
-			_conformity = 07777;
-		} else {
- 			_conformity = ::lroundf (\
-	(float) (std::abs (cur_sum_tic - cur_rate_tic) ) / ((float) tic / 1000.0)
-							);
-		}
-
-		cur_sum_tic = 0;
-		cur_rate_tic = 0;
-		tic = 0;
 	}
-
-	make_deal ();
 }
 
 
@@ -142,6 +110,22 @@ void unit::rehash (
 inline
 void unit::make_deal ()
 {
+logs << "Last Delta=" << last_delta() << "Lacuna=" <<  clo::ck().lacuna() << endl;
+	if ( ( last_delta() > 10 || last_delta() < -10)
+	&&   clo::ck().lacuna() < 15 ///< Flight! Cash in ON
+	) {
+logs << "Flight! ";
+		if ( _position->is_open ())
+		{
+logs << " Is Open! ";
+			if (_position->is_long() && last_delta() > 0)
+			{
+logs << " trail target! ";
+				_position->trail_target (7, 100.0);
+			}
+		}
+	}
+
 	///< Signal disappeared
 	if (!_position->is_closed ()
 	&&   _position->is_action()
@@ -151,7 +135,7 @@ void unit::make_deal ()
 		_position = new deal::idle ();
 	}
 
-	_position->check ();
+	_position->checkout ();
 
 	if ( _position->is_closed () && sum() == 0 )
 	{

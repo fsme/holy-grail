@@ -64,9 +64,9 @@ try {
 			+ Deal + iron ("fx_demo_user")
 			+ PWD + iron ("fx_demo_pwd")
 			+ Pair + iron ("y")
-			+ Buy + Amount + "100000"
+			+ Buy + Amount + iron ("fx_demo_amount_eurusd")
 		);
-	auto_ptr<mem::parser> _resp ( response (http_get_buy) );
+	auto_ptr<mem::parser> _resp ( request (http_get_buy) );
 	if (logs << info)
 		logs << "REAL BUY=" << _resp.get()->str() << flush;
 
@@ -87,9 +87,9 @@ try {
 			+ Deal + iron ("fx_demo_user")
 			+ PWD + iron ("fx_demo_pwd")
 			+ Pair + iron ("y")
-			+ Sell + Amount + "100000"
+			+ Sell + Amount + iron ("fx_demo_amount_eurusd")
 		);
-	auto_ptr<mem::parser> _resp ( response (http_get_sell) );
+	auto_ptr<mem::parser> _resp ( request (http_get_sell) );
 	if (logs << info)
 		logs << "REAL SELL=" << _resp.get()->str() << flush;
 
@@ -105,7 +105,7 @@ try {
 bool echo (
 		const std::string& shout_ = "CooL" ///\param shout_ Text for echo
 ) {
-	auto_ptr<mem::parser> _resp ( response (APIHost+Demo+Echo+shout_) );
+	auto_ptr<mem::parser> _resp ( request (APIHost+Demo+Echo+shout_) );
 	logs << "Echo="<< (const char*)_resp.get()->root_node->children->content
 		 << endl;
 
@@ -117,7 +117,7 @@ bool echo (
 std::string get_position()
 {
 	auto_ptr<mem::parser> _resp (\
-			 response (APIHost+Demo+GetPositionBlotter+iron("fx_demo_key")) );
+			 request (APIHost+Demo+GetPositionBlotter+iron("fx_demo_key")) );
 
 	return _resp.get()->str();
 }
@@ -127,15 +127,16 @@ std::string get_position()
 std::string get_margin()
 {
 	auto_ptr<mem::parser> _resp (\
-			 response (APIHost+Demo+GetMarginBlotter+iron("fx_demo_key")) );
+			 request (APIHost+Demo+GetMarginBlotter+iron("fx_demo_key")) );
 
 	return _resp.get()->str();
 }
 
 private:
 
-///\brief Get response
-mem::parser* response (
+///\brief Make request
+///\return Memory parser pointer with response
+mem::parser* request (
 	const std::string& url_ = ""///\param url_ URL for request
 );
 
