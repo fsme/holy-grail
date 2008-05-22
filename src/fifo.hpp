@@ -200,7 +200,7 @@ void soft_clear ()
 	if ( base_type::size() > 0 )
 	{
 		int32_t indx = ( base_type::size() > 1 ) ? 2 : 1;
-		base_type::queue.erase ( queue.begin()+indx, queue.end());
+		base_type::queue.erase ( queue.begin(), queue.end() - indx);
 	}
 	else
 		base_type::queue.clear();
