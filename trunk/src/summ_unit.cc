@@ -110,19 +110,13 @@ void unit::rehash (
 inline
 void unit::make_deal ()
 {
-logs << "Last Delta=" << last_delta() << "Lacuna=" <<  clo::ck().lacuna() << endl;
 	if ( ( last_delta() > 10 || last_delta() < -10)
 	&&   clo::ck().lacuna() < 15 ///< Flight! Cash in ON
 	) {
-logs << "Flight! ";
 		if ( _position->is_open ())
 		{
-logs << " Is Open! ";
 			if (_position->is_long() && last_delta() > 0)
-			{
-logs << " trail target! ";
-				_position->trail_target (7, 100.0);
-			}
+				_position->trail_target (12, 100.0);
 		}
 	}
 
