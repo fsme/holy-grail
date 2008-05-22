@@ -67,11 +67,21 @@ try {
 			+ Buy + Amount + iron ("fx_demo_amount_eurusd")
 		);
 	auto_ptr<mem::parser> _resp ( request (http_get_buy) );
-	if (logs << info)
-		logs << "REAL BUY=" << _resp.get()->str() << flush;
+
+	if ( _resp.get()->str().find ("uccess>true") != string::npos)
+	{
+		if (logs << debug)
+			logs << "REAL BUY=" << _resp.get()->str() << flush;
+
+		ofstream http_resp ("/tmp/robotrade-http.xml", ios::app);
+		if (http_resp.is_open())
+			http_resp << _resp.get()->str() << endl;
+
+	} else
+		throw runtime_error (_resp.get()->str()+": Success>true not found");
 
 } catch (const exception& e) {
-	logs << error << "HTTP BUY ERROR: " << e.what() << endl;
+	logs << error << "HTTP BUY error: " << e.what() << endl;
 	return false;
 }
 
@@ -90,14 +100,23 @@ try {
 			+ Sell + Amount + iron ("fx_demo_amount_eurusd")
 		);
 	auto_ptr<mem::parser> _resp ( request (http_get_sell) );
-	if (logs << info)
-		logs << "REAL SELL=" << _resp.get()->str() << flush;
+
+	if ( _resp.get()->str().find ("uccess>true") != string::npos)
+	{
+		if (logs << debug)
+			logs << "REAL SELL=" << _resp.get()->str() << flush;
+
+		ofstream http_resp ("/tmp/robotrade-http.xml", ios::app);
+		if (http_resp.is_open())
+			http_resp << _resp.get()->str() << endl;
+
+	} else
+		throw runtime_error (_resp.get()->str()+": Success>true not found");
 
 } catch (const exception& e) {
-	logs << error << "HTTP SELL ERROR: " << e.what() << endl;
+	logs << error << "HTTP SELL error: " << e.what() << endl;
 	return false;
 }
-
 	return true;
 }
 
