@@ -115,19 +115,26 @@ void unit::make_deal ()
 	) {
 		if ( _position->is_open ())
 		{
-			if (_position->is_long() && last_delta() > 0)
+			if (_position->is_long())
 			{
-				_position->trail_target (12, 100.0);
+				if (last_delta() > 0) _position->trail_target (12, 100.0);
+				else
+					;// u turn position
 
-			} else {
-				/// u turn position
+			} else { // is_short
+
+				if (last_delta() < 0) _position->trail_target (12, 100.0);
+				else
+					;// u turn position
 			}
 			if (logs << info)
 				logs << " CASH IN ON for open"
 					 << " Long=" << boolalpha << _position->is_long()
 					 << " Delta="<< last_delta()
 					 << " Lacuna=" << clo::ck().lacuna();
-		} else {
+
+		} else { // not is_open 
+
 			if ( _position->is_closed() )
 			{
 				if (logs << info)

@@ -9,9 +9,9 @@
 #include <libxml/parser.h>
 #include <libxml/tree.h>
 
+#include <stdexcept>
+
 using namespace std;
-using namespace cxx;
-using namespace env;
 
 namespace mem {
 
