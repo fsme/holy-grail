@@ -92,6 +92,10 @@ bool is_real () { return _that_real; }
 ///\return True if long (buy)
 bool is_long () { return _that_buy; }
 
+///\brief Open position
+virtual
+void open () = 0;
+
 ///\brief Close position
 virtual
 void close () = 0;
@@ -177,7 +181,7 @@ buy (
 	_that_buy = true;
 	_trailing_stop = last_ask() + (float) _trail / multi::factor();
 
-//logs << " CREATE ORDER BUY ID=" << id() << " START=" << trail_stop() << " ";
+logs << " CREATE ORDER BUY ID=" << id() << " START=" << trail_stop() << " ";
 }
 
 ///\brief Destroy
@@ -249,6 +253,32 @@ void trail_target (
 	trail (trail_);
 }
 
+///\brief Open LONG position
+virtual
+void open ()
+{
+	if ( lock_for_real ( is_real ())
+	) {
+		if ( !real_buy () )
+		{
+			if (logs << error) logs << "Real BUY request fail" << endl;
+			_that_real = false;
+			unlock_for_real ();
+		}
+	} else {
+		if (logs << info) logs << "Lock for BUY was denail" << endl;
+		 _that_real = false;
+	}
+
+	_open_rate = last_ask();
+	_trail = 41;
+	_trailing_stop = last_bid() - (float) _trail / multi::factor();
+	_target = last_bid() + 10.0 / multi::factor();
+	_is_open = true;
+
+//logs << "BUY at $" << open_rate() << " TARGET=" << target() << " ";
+}
+
 ///\brief Check out current rate for BUY
 virtual
 void checkout ()
@@ -288,32 +318,7 @@ void checkout ()
 
 	}
 
-	if ( last_ask() > trail_stop() ) ///< BUY LONG (ACTION->OPEN)
-	{
-		
-		if ( lock_for_real ( is_real ())
-		) {
-			if ( !real_buy () )
-			{
-				if (logs << error) logs << "Real BUY request fail" << endl;
-				_that_real = false;
-				unlock_for_real ();
-			}
-		} else {
-			if (logs << info) logs << "Lock for BUY was denail" << endl;
-			 _that_real = false;
-		}
-
-		_open_rate = last_ask();
-		_trail = 41;
-		_trailing_stop = last_bid() - (float) _trail / multi::factor();
-		_target = last_bid() + 10.0 / multi::factor();
-		_is_open = true;
-
-//logs << "BUY at $" << _open_rate << " TARGET=" << target() << " ";
-
-		return;
-	} 
+	if ( last_ask() > trail_stop()) open(); ///< BUY LONG (ACTION->OPEN)
 }
 
 }; //.buy
@@ -338,7 +343,7 @@ sell (
 	_that_buy = false;
 	_trailing_stop = last_bid() - (float) _trail / multi::factor();
 
-//logs << " CREATE ORDER SELL ID=" << id() << " START=" << trail_stop() << " ";
+logs << " CREATE ORDER SELL ID=" << id() << " START=" << trail_stop() << " ";
 }
 
 ///\brief Destroy
@@ -408,6 +413,32 @@ void trail_target (
 	trail (trail_);
 }
 
+///\brief Open SHORT position
+virtual
+void open ()
+{
+	if ( lock_for_real (is_real())
+	) {
+		if ( !real_sell ())
+		{
+			if (logs << error) logs << "Real SELL request fail" << endl;
+			_that_real = false;
+			unlock_for_real ();
+		}
+	} else {
+	 	_that_real = false;
+		if (logs << warning) logs << "Lock for SELL was denial" << endl;
+	}
+
+	_open_rate = last_bid();
+	_trail = 41;
+	_trailing_stop = last_ask() + (float) _trail / multi::factor();
+	_target = last_ask() - 10.0 / multi::factor();
+	_is_open = true;
+
+//logs << "SELL at $" << open_rate() << " TARGET=" << target() << "; ";
+} 
+
 ///\brief Check out current rate for SELL
 virtual
 void checkout ()
@@ -430,7 +461,7 @@ void checkout ()
 			float new_stop = last_ask() + (float) _trail / multi::factor();
 			if ( new_stop < trail_stop() ) _trailing_stop = new_stop;
 
-//logs << "STOP for SELL $" << trail_stop() << " NEW STOP=" << new_stop << " ";
+//logs << "Stop for SELL $" << trail_stop() << " NEW STOP=" << new_stop << " ";
 		}
 
 		return;
@@ -443,34 +474,11 @@ void checkout ()
 		float new_start = last_bid() - (float) _trail / multi::factor();
 		if ( new_start > trail_stop() ) { _trailing_stop = new_start; }
 
-//logs << "start for SELL $" << trail_stop() << "; ";
+//logs << "Start for SELL $" << trail_stop() << "; ";
 
 	}
 
-	if ( last_bid() < trail_stop() ) ///< SELL SHORT (ACTION->OPEN)
-	{
-		if ( lock_for_real (is_real())
-		) {
-			if ( !real_sell ())
-			{
-				if (logs << error) logs << "Real SELL request fail" << endl;
-				_that_real = false;
-				unlock_for_real ();
-			}
-		} else {
-		 	_that_real = false;
-			if (logs << warning) logs << "Lock for SELL was denial" << endl;
-		}
-
-		_open_rate = last_bid();
-		_trail = 41;
-		_trailing_stop = last_ask() + (float) _trail / multi::factor();
-		_target = last_ask() - 10.0 / multi::factor();
-		_is_open = true;
-
-//logs << "SELL at $" << open_rate() << " TARGET=" << target() << "; ";
-		return;
-	} 
+	if ( last_bid() < trail_stop() ) open (); ///< SELL SHORT (ACTION->OPEN)
 }
 
 }; //.sell
@@ -510,6 +518,9 @@ void trail_target (
 
 ///\brief Close virtual, never mind
 virtual void close () {}
+
+///\brief  Close virtual, never mind
+virtual void open () {}
 
 ///\brief Close virtual, never mind
 virtual void checkout () {}

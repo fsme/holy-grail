@@ -42,34 +42,22 @@ rates ()
 ///\brief Destroy
 ~rates () {}
 
-///\brief Push new rate
-void
-	push (
-		  const float bid_ ///\param bid_ New bid
-		, const float ask_ ///\param ask_ New ask
-) {
-	ra::tes().push ( bid_, ask_ );
-
-if ( is_ready()
-&&  ( clo::ck().lacuna() > 300 && ( last_delta() > 2 || last_delta() < -2) )
-||  ( last_delta() > 15 || last_delta() < -15 )
-) {
-	if (logs << info)
-		logs << "Lacuna="<< clo::ck().lacuna()
-			 << "; Delta=" << last_delta()
-			 << "; clear statistic" << endl;
-	clear();
-}	
-
-	transit ();
-}
-
 ///\brief Transition to the new action
-void
-	transit ()
+void transit ()
 {
-if (logs << info)
-	logs << "" << last_bid () << "/" << "" << last_ask () << " ";
+	if ( is_ready()
+	&&  ( clo::ck().lacuna() > 300 && (last_delta() > 2 || last_delta() < -2) )
+	||  ( last_delta() > 15 || last_delta() < -15 )
+	) {
+		if (logs << info)
+			logs << "Lacuna="<< clo::ck().lacuna()
+				 << "; Delta=" << last_delta()
+				 << "; clear statistic" << endl;
+		clear();
+	}	
+
+	if (logs << info)
+		logs << "" << last_bid () << "/" << "" << last_ask () << " ";
 
 	int32_t prof_ = profit();
 	_profit = 0;

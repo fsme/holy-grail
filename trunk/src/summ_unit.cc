@@ -110,15 +110,63 @@ void unit::rehash (
 inline
 void unit::make_deal ()
 {
-	if ( ( last_delta() > 10 || last_delta() < -10)
+	if ( ( last_delta() > 15 || last_delta() < -15)
 	&&   clo::ck().lacuna() < 15 ///< Flight! Cash in ON
 	) {
 		if ( _position->is_open ())
 		{
 			if (_position->is_long() && last_delta() > 0)
+			{
 				_position->trail_target (12, 100.0);
-		}
-	}
+
+			} else {
+				/// u turn position
+			}
+			if (logs << info)
+				logs << " CASH IN ON for open"
+					 << " Long=" << boolalpha << _position->is_long()
+					 << " Delta="<< last_delta()
+					 << " Lacuna=" << clo::ck().lacuna();
+		} else {
+			if ( _position->is_closed() )
+			{
+				if (logs << info)
+					logs << " CASH IN ON for closed"
+						 << " Delta="<< last_delta()
+						 << " Lacuna=" << clo::ck().lacuna();
+			} else {
+				if ( _position->is_action() )
+				{
+					if (logs << info)
+						logs << " CASH IN ON for action"
+							 << " Delta="<< last_delta()
+							 << " Lacuna=" << clo::ck().lacuna();
+				} else {
+					delete _position;	
+					if (last_delta() < 0)
+					{
+						_position = new deal::sell ( 0, is_cool ());
+						_position->open ();
+						_position->trail_target ( 12, 100.0);
+					} else {
+						_position = new deal::buy ( 0, is_cool ());
+						_position->open ();
+						_position->trail_target ( 12, 100.0);
+					}//fi
+					if (logs << info) logs << " CASH IN ON for idle"
+										   << " Delta="<< last_delta()
+										   << " Lacuna=" << clo::ck().lacuna();
+				}//fi
+			}//fi
+		}//fi
+
+	} else
+		if ( (last_delta() > 10 || last_delta() < -10)
+		&&   clo::ck().lacuna() < 10
+		) if (logs << info) logs << " BLOW"
+					 			 << " Open="<< boolalpha<< _position->is_open()
+								 << " Delta="<< last_delta()
+								 << " Lacuna=" << clo::ck().lacuna();
 
 	///< Signal disappeared
 	if (!_position->is_closed ()
@@ -126,7 +174,8 @@ void unit::make_deal ()
 	&&  !_position->is_open()
 	&&	!u_turn()
 	) {
-		_position = new deal::idle ();
+		delete _position;
+		_position = new deal::idle;
 	}
 
 	_position->checkout ();
@@ -153,7 +202,8 @@ void unit::make_deal ()
 				 << " Real=" << boolalpha << _position->is_real()
 				 << endl;
 
-		_position = new deal::idle ();
+		delete _position;
+		_position = new deal::idle;
 	}
 
 	if ( !_position->is_closed()
@@ -162,10 +212,16 @@ void unit::make_deal ()
 	&&   forecast() > 2
 	) {
 		if ( _last.back() > 0 && direct() < -11 )
+		{
+			delete _position;
 			_position = new deal::sell ( 3, is_cool ());
+		}
 
 		if ( _last.back() < 0 && direct() > 11 )
+		{
+			delete _position;
 			_position = new deal::buy ( 3, is_cool ());
+		}
 	}
 }
 
