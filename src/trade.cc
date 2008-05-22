@@ -125,24 +125,34 @@ try {
 	std::string quote, rate, timest;
 	float bid, ask;
 
+init:
 	while ( std::getline (quoteslogfile, quote))
 	{
-		if (shut_down) break;
-
+		std::stringstream input (quote);
+		while (input >> quote) ///< Init
+		{
+			if (quote != "QUOTE") continue;
+			input >> quote >> rate >> timest;
+			if (quote != iron ("y")) continue;
+			rate_to_float (rate, bid, ask);
+			clo::ck().quote_time (timest);
+			ra::tes().push (bid, ask);
+			goto work;
+		}
+	}
+work:
+	while ( std::getline (quoteslogfile, quote))
+	{
 		std::stringstream input (quote);
 		while (input >> quote)
 		{
 			if (quote != "QUOTE") continue;
-
 			input >> quote >> rate >> timest;
-
 			if (quote != iron ("y")) continue;
-
 			rate_to_float (rate, bid, ask);
-
 			clo::ck().quote_time (timest);
-
-			deal::en::gine().push (bid, ask);
+			ra::tes().push (bid, ask);
+			deal::en::gine().transit();
 		}
 	}
 

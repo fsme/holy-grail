@@ -189,7 +189,7 @@ unit (
 	: base_fifo (size_)
 	, base_avrg (size_)
 	, front_adder (size_)
-	, _position (new deal::idle(0.0) )
+	, _position ( new deal::idle )
 	, _profit (0)
 	, _real_profit (0)
 	, _prophet(0)
