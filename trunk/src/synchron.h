@@ -45,9 +45,9 @@ int32_t lacuna () { return _lacuna; }
 
 private:
 
-	time_t	_diff; ///< Different from local time to quotes time
-	time_t	_quote_time; ///< Timestamp from quotes log
-	int32_t _lacuna; ///< Break of the time more then 300 sec.
+time_t	_diff;			///< Different from local time to quotes time
+time_t	_quote_time;	///< Timestamp from quotes log
+int32_t _lacuna;		///< Break up the time
 
 
 ///\brief Date to UNIX time

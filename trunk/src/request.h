@@ -31,9 +31,8 @@ public:
 
 ///\brief Create
 query ()
-	: HttpGet (APIHost+Demo+GetTime)
+	: HttpGet (APIHost+DemoAPIPath+GetTime)
 {
-	clo::ck();
 	get_server_time ();
 }
 
@@ -41,14 +40,13 @@ query ()
 void get_server_time ()
 {
 try {
-	HttpGet.setURL (APIHost+Demo+GetTime);
+	HttpGet.setURL (APIHost+DemoAPIPath+GetTime);
 	while ( !HttpGet.request ())
 	{
 		logs << error << "Server is unavailable" << endl;
 		::sleep (3);
 		continue;
 	}
-
 	mem::parser serv_time ( HttpGet.str().data(), HttpGet.str().size());
 	clo::ck().server_time (\
 		  (const char*) serv_time.root_node->children->content
@@ -66,16 +64,13 @@ bool buy ()
 {
 try {
 	string http_get_buy (\
-			  APIHost + Demo
-			+ Deal + iron ("fx_user")
-			+ PWD + iron ("fx_password")
-			+ Pair + iron ("y")
-			+ Buy + Amount + iron ("fx_amount_eurusd")
+			  APIHost + iron ("APIPath")
+			+ Deal + iron ("User")
+			+ PWD + iron ("PWD")
+			+ Pair + iron ("Pair")
+			+ Buy + Amount + iron ("Amount")
 		);
 	auto_ptr<mem::parser> _resp ( request (http_get_buy) );
-
-	if ( _resp.get()->str().size() > 0)
-		flush_response ("# HTTP BUY response", _resp.get()->str());
 
 	if ( _resp.get()->str().find ("uccess>true") != string::npos)
 	{
@@ -85,11 +80,15 @@ try {
 
 		if (logs << debug)
 			logs << "REAL BUY=" << _resp.get()->str() << flush;
-	} else 
-		throw runtime_error (_resp.get()->str());
+
+	} else { 
+		if ( _resp.get()->str().size() > 0)
+			flush_response ("# HTTP BUY response", _resp.get()->str());
+		throw runtime_error ("HTTP BUY error");
+	}
 
 } catch (const exception& e) {
-	logs << error << "HTTP BUY error: " << e.what() << endl;
+	logs << error << e.what() << endl;
 	return false;
 }
 
@@ -101,16 +100,13 @@ bool sell ()
 {
 try {
 	string http_get_sell (\
-			  APIHost + Demo
-			+ Deal + iron ("fx_user")
-			+ PWD + iron ("fx_password")
-			+ Pair + iron ("y")
-			+ Sell + Amount + iron ("fx_amount_eurusd")
+			  APIHost + iron ("APIPath")
+			+ Deal + iron ("User")
+			+ PWD + iron ("PWD")
+			+ Pair + iron ("Pair")
+			+ Sell + Amount + iron ("Amount")
 		);
 	auto_ptr<mem::parser> _resp ( request (http_get_sell) );
-
-	if ( _resp.get()->str().size() > 0)
-		flush_response ("# HTTP SELL response", _resp.get()->str());
 
 	if ( _resp.get()->str().find ("uccess>true") != string::npos)
 	{
@@ -120,11 +116,15 @@ try {
 
 		if (logs << debug)
 			logs << "REAL SELL=" << _resp.get()->str() << flush;
-	} else
-		throw runtime_error (_resp.get()->str());
+
+	} else {
+		if ( _resp.get()->str().size() > 0)
+			flush_response ("# HTTP SELL response", _resp.get()->str());
+		throw runtime_error ("HTTP SELL error");
+	}
 
 } catch (const exception& e) {
-	logs << error << "HTTP SELL error: " << e.what() << endl;
+	logs << error << e.what() << endl;
 	return false;
 }
 	return true;
@@ -134,7 +134,7 @@ try {
 bool echo (
 		const std::string& shout_ = "CooL" ///\param shout_ Text for echo
 ) {
-	auto_ptr<mem::parser> _resp ( request (APIHost+Demo+Echo+shout_) );
+	auto_ptr<mem::parser> _resp ( request (APIHost+DemoAPIPath+Echo+shout_) );
 	logs << "Echo="<< (const char*)_resp.get()->root_node->children->content
 		 << endl;
 
@@ -146,10 +146,8 @@ bool echo (
 std::string get_position()
 {
 	auto_ptr<mem::parser> _resp (\
-			 request (APIHost+Demo+GetPositionBlotter+iron("fx_auth_key")) );
-
-	if ( _resp.get()->str().size() > 0)
-		flush_response ("# HTTP GetPositionBlotter ", _resp.get()->str());
+		 request ( APIHost + iron("APIPath") + "/GetPositionBlotter?Key="
+					+iron("AuthKey")) );
 
 	return _resp.get()->str();
 }
@@ -159,10 +157,8 @@ std::string get_position()
 std::string get_margin()
 {
 	auto_ptr<mem::parser> _resp (\
-			 request (APIHost+Demo+GetMarginBlotter+iron("fx_auth_key")) );
-
-	if ( _resp.get()->str().size() > 0)
-		flush_response ("# HTTP GetMarginBlotter ", _resp.get()->str());
+		 request ( APIHost + iron("APIPath") + "/GetMarginBlotter?Key="
+					+iron("AuthKey")) );
 
 	return _resp.get()->str();
 }
@@ -178,7 +174,7 @@ mem::parser* request (
 	url::easy HttpGet;
 
 static const string APIHost;
-static const string Demo;
+static const string DemoAPIPath;
 static const string GetTime;
 static const string Echo;
 static const string Deal;
@@ -187,9 +183,6 @@ static const string Pair;
 static const string Buy;
 static const string Sell;
 static const string Amount;
-
-static const string GetPositionBlotter;
-static const string GetMarginBlotter;
 
 }; //.query
 
