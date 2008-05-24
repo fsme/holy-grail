@@ -181,12 +181,13 @@ buy (
 	_that_buy = true;
 	_trailing_stop = last_ask() + (float) _trail / multi::factor();
 
-logs << " CREATE ORDER BUY ID=" << id() << " START=" << trail_stop() << " ";
+if (logs << debug)
+	logs << " CREATE ORDER BUY ID=" << id() << " START=" << trail_stop();
 }
 
 ///\brief Destroy
 virtual ~buy () {
-//logs << " DELETE ORDER BUY ";
+ if (logs << debug) logs << " DELETE ORDER BUY ";
 }
 
 ///\brief Set new trailing for BUY
@@ -205,7 +206,7 @@ void trail (
 	{
 		if ( new_stop > trail_stop() ) { _trailing_stop = new_stop;
 
-logs << "TRAIL STOP=" << trail_stop() << " ";
+//logs << "TRAIL STOP=" << trail_stop() << " ";
 
 		}
 	}
@@ -343,12 +344,13 @@ sell (
 	_that_buy = false;
 	_trailing_stop = last_bid() - (float) _trail / multi::factor();
 
-logs << " CREATE ORDER SELL ID=" << id() << " START=" << trail_stop() << " ";
+ if (logs << debug)
+	 logs << " CREATE ORDER SELL ID=" << id() << " START=" << trail_stop();
 }
 
 ///\brief Destroy
 virtual ~sell () {
-//logs << " DELETE ORDER SELL ";
+ if (logs << debug) logs << "DELETE ORDER SELL";
 }
 
 ///\brief Set trailing for SELL
@@ -367,7 +369,7 @@ void trail (
 	{
 		if (new_stop < trail_stop() ) { _trailing_stop = new_stop;
 
-logs << "TRAIL STOP=" << trail_stop() << " ";
+//logs << "TRAIL STOP=" << trail_stop() << " ";
 		}
 	}
 	else // is_action ()

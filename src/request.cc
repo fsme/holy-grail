@@ -3,6 +3,8 @@
 // Licence: GPLv3
 // $Id$
 
+#include <fstream> 
+
 #include <request.h> 
 
 using namespace std;
@@ -38,6 +40,19 @@ mem::parser*
 		throw runtime_error (url_ + ": HTTP request error");
 
 	return new mem::parser ( HttpGet.str().data(), HttpGet.str().size() );
+}
+
+//
+void flush_response ( const string comment_, const string data_ )
+{
+	ofstream bakfile ( iron ("fx_http_response_log").c_str(), ios::app);
+	if ( !bakfile.is_open ())
+	{
+		if (logs << error)
+			logs << "HTTP responses log is unavailable" << endl;
+		return;
+	}
+	bakfile << comment_ << endl << data_ << endl;
 }
 
 } //::re

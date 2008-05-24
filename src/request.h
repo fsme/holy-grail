@@ -17,6 +17,12 @@ using namespace syn;
 
 namespace re {
 
+///\brief Flush data to file for analisys
+void flush_response (
+	  const string comment_///\param comment_ For comment
+	, const string data_///\param data_ for safe
+);
+
 ///\class query
 ///\brief Make HTTP request to server
 class query
@@ -61,24 +67,26 @@ bool buy ()
 try {
 	string http_get_buy (\
 			  APIHost + Demo
-			+ Deal + iron ("fx_demo_user")
-			+ PWD + iron ("fx_demo_pwd")
+			+ Deal + iron ("fx_user")
+			+ PWD + iron ("fx_password")
 			+ Pair + iron ("y")
-			+ Buy + Amount + iron ("fx_demo_amount_eurusd")
+			+ Buy + Amount + iron ("fx_amount_eurusd")
 		);
 	auto_ptr<mem::parser> _resp ( request (http_get_buy) );
 
+	if ( _resp.get()->str().size() > 0)
+		flush_response ("# HTTP BUY response", _resp.get()->str());
+
 	if ( _resp.get()->str().find ("uccess>true") != string::npos)
 	{
+		if (logs << warning)
+			logs << "Confirmation="
+				 << (const char*) _resp.get()->root_node->children->next->next->next->next->next->next->next->children->content << endl;
+
 		if (logs << debug)
 			logs << "REAL BUY=" << _resp.get()->str() << flush;
-
-		ofstream http_resp ("/tmp/robotrade-http.xml", ios::app);
-		if (http_resp.is_open())
-			http_resp << _resp.get()->str() << endl;
-
-	} else
-		throw runtime_error (_resp.get()->str()+": Success>true not found");
+	} else 
+		throw runtime_error (_resp.get()->str());
 
 } catch (const exception& e) {
 	logs << error << "HTTP BUY error: " << e.what() << endl;
@@ -94,24 +102,26 @@ bool sell ()
 try {
 	string http_get_sell (\
 			  APIHost + Demo
-			+ Deal + iron ("fx_demo_user")
-			+ PWD + iron ("fx_demo_pwd")
+			+ Deal + iron ("fx_user")
+			+ PWD + iron ("fx_password")
 			+ Pair + iron ("y")
-			+ Sell + Amount + iron ("fx_demo_amount_eurusd")
+			+ Sell + Amount + iron ("fx_amount_eurusd")
 		);
 	auto_ptr<mem::parser> _resp ( request (http_get_sell) );
 
+	if ( _resp.get()->str().size() > 0)
+		flush_response ("# HTTP SELL response", _resp.get()->str());
+
 	if ( _resp.get()->str().find ("uccess>true") != string::npos)
 	{
+		if (logs << warning)
+			logs << "Confirmation="
+				 << (const char*) _resp.get()->root_node->children->next->next->next->next->next->next->next->children->content << endl;
+
 		if (logs << debug)
 			logs << "REAL SELL=" << _resp.get()->str() << flush;
-
-		ofstream http_resp ("/tmp/robotrade-http.xml", ios::app);
-		if (http_resp.is_open())
-			http_resp << _resp.get()->str() << endl;
-
 	} else
-		throw runtime_error (_resp.get()->str()+": Success>true not found");
+		throw runtime_error (_resp.get()->str());
 
 } catch (const exception& e) {
 	logs << error << "HTTP SELL error: " << e.what() << endl;
@@ -136,7 +146,10 @@ bool echo (
 std::string get_position()
 {
 	auto_ptr<mem::parser> _resp (\
-			 request (APIHost+Demo+GetPositionBlotter+iron("fx_demo_key")) );
+			 request (APIHost+Demo+GetPositionBlotter+iron("fx_auth_key")) );
+
+	if ( _resp.get()->str().size() > 0)
+		flush_response ("# HTTP GetPositionBlotter ", _resp.get()->str());
 
 	return _resp.get()->str();
 }
@@ -146,7 +159,10 @@ std::string get_position()
 std::string get_margin()
 {
 	auto_ptr<mem::parser> _resp (\
-			 request (APIHost+Demo+GetMarginBlotter+iron("fx_demo_key")) );
+			 request (APIHost+Demo+GetMarginBlotter+iron("fx_auth_key")) );
+
+	if ( _resp.get()->str().size() > 0)
+		flush_response ("# HTTP GetMarginBlotter ", _resp.get()->str());
 
 	return _resp.get()->str();
 }

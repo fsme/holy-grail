@@ -26,7 +26,6 @@ namespace stat {
 
 class rates
 {
-typedef fi::fo<int32_t>::size_type	size_type;
 typedef	vector<summ::unit>	vectorDeltaSummFIFO;
 
 public:
@@ -35,7 +34,8 @@ public:
 rates ()
 	: _profit (0)
 {
-	//for ( size_type i = size(); i > 33; --i )
+
+	//for (int i = ra::tes().delta().max_size(); i > 33; --i )
 		ds_units.push_back ( summ::unit (69));
 }
 
@@ -104,11 +104,6 @@ int32_t
 ///\return True if cleared for action
 bool
 	is_ready () const { return ra::tes().is_ready(); }
-
-///\brief Get size
-///\return Current FIFO size
-size_type
-		size () const { return ra::tes().size(); }
 
 ///\brief Unit test
 ///\return True if OK
