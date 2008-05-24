@@ -18,15 +18,6 @@ using namespace cxx;
 using namespace env;
 using namespace fx;
 
-bool shut_down = false;
-
-///\brief Catch interrupts
-void sig_action (int sig_ ///\param sig_ The signal
-) {
-	logs << notice << "Interrupt by signal " << sig_ << endl;
-	exit (0);
-}
-
 ///\brief Extract content
 inline
 std::string&
@@ -49,20 +40,30 @@ int
 	  int argc
 	, char* argv[]
 ) {
-	::signal (SIGTERM, sig_action);
-	::signal (SIGINT, sig_action);
-
 try {
 	ti::meter total ("Uptime (sec): ");
 	logs.level (level_info);
 
-	env::iron.getopt (argc, argv,"c:");
+	iron.getopt (argc, argv, "c:");
 
-	if ( iron.exists ("c"))
-		iron.configure ( iron ("c"));
-	else
-		iron.configure ("/home/ass/etc/passwd");
+	if ( !iron.exists ("c"))
+	{
+		if ( argv[0])
+		{
+			std::string param ( argv[0]);
+			if ( param.find_first_of ("123456") != string::npos )
+				 iron ["c"] = string ("AW") + param + "_forex_com";
+			else
+				 iron ["c"] = "demo_forex_com";
+		} else {
+				 iron ["c"] = "demo_forex_com";
+		}
+	}
 
+	iron.getenv ("HOME");
+	iron.configure ( iron ("HOME")+"/etc/"+iron("c") );
+
+	clo::ck();
 	std::stringstream blotter ( re::que::st().get_margin());
 
 	std::string line;

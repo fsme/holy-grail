@@ -28,7 +28,6 @@ using namespace mem;
 const string APIHost ("https://api.efxnow.com");
 const string GetRatesServerAuth (\
 "/DEMOWebServices2.8/Service.asmx/GetRatesServerAuth?UserID=");
-string GetRatesDataSet("/DEMOWebServices2.8/Service.asmx/GetRatesDataSet?Key=");
 
 const std::string Rates ("Rates");
 const std::string Quote ("Quote");
@@ -65,6 +64,7 @@ void catch_signal ()
 	::signal (SIGINT, sig_action);
 }
 
+/** prepare to move to the evn::iron
 ///\brief
 inline
 void init_log ( const char* name_ ///\param name_ As Is argv[0]
@@ -79,6 +79,7 @@ void init_log ( const char* name_ ///\param name_ As Is argv[0]
 	logs.open (_ident);
 	logs.level (level_info);
 }
+***/
 
 int
  main (
@@ -90,11 +91,18 @@ int
 try{
 	ti::meter total ("Uptime (sec): ");
 
-	iron.getopt (argc, argv, "c:l"); ///< c - config file; l - write to syslog
+	///< c - config file; l - write to syslog
+	iron.getopt (argc, argv, "c:l:");
 	iron.configure ( iron ("c") );
 
-	init_log ( argv[0]);
-	std::string req (APIHost + GetRatesDataSet + iron ("efxnow_key"));
+	logs.level (level_info);
+	if ( iron.exists ("l"))
+		logs.open ( iron ("l").c_str());
+
+	::daemon (1,1);
+
+	std::string req (\
+ iron ("APIHost")+iron("APIPath")+"/GetRatesDataSet?Key="+iron("AuthKey"));
 
 	url::easy GetRate (req);
 	mem::parser http_response;

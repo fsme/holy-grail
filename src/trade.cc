@@ -86,19 +86,33 @@ try {
 	ti::meter total ("Uptime (sec): ");
 	logs.level (level_debug);
 
-	if (argc < 4)
-	throw invalid_argument ("Usage: trade -{rl} -y CCY {/path/to/quotes.log|-}");
+	if (argc < 2)
+	throw invalid_argument ("Usage: trade -r -c /path/to/config /path/to/quotes.log|-");
 
-	env::iron.getopt (argc, argv,"c:lry:");///< r=real deal; y=CCY; l= open log
+	///< c - config file; r - realdeal;
+	env::iron.getopt (argc, argv,"c:r");
 
-	if ( iron.exists ("c"))
-		iron.configure ( iron ("c"));
-	else
-		iron.configure ("/home/ass/etc/passwd");
+	if ( !iron.exists ("c"))
+	{
+		if ( argv[0])
+		{
+			std::string param ( argv[0]);
+			if ( param.find_first_of ("123456") != string::npos )
+				 iron ["c"] = string ("AW") + param + "_forex_com";
+			else
+				 iron ["c"] = "demo_forex_com";
+		} else {
+				 iron ["c"] = "demo_forex_com";
+		}
+	}
 
+	iron.getenv ("HOME");
+	iron.configure ( iron ("HOME")+"/etc/"+iron("c") );
+
+	logs.level (level_debug);
 	if ( iron.exists ("l"))
 	{
-		logs.open ("eurusd");
+		logs.open ( iron ("SysLogIdent").c_str() );
 		if (logs << info)
 		{
 			time_t now_;
@@ -107,9 +121,9 @@ try {
 		}
 	}
 
-	fx::multi::factor ( iron ["y"]);
+	fx::multi::factor ( iron ("Pair"));
 	if ( fx::multi::factor () == 0 )
-		throw invalid_argument ( iron ["y"]+ " CCY unknown");
+		throw invalid_argument ( iron ("Pair")+": CCY unknown");
 
 	std::string ifname (argv [0]); ///< Input from
 	if ( ifname [0] == '-') ifname = "/dev/stdin";
@@ -133,7 +147,7 @@ init:
 		{
 			if (quote != "QUOTE") continue;
 			input >> quote >> rate >> timest;
-			if (quote != iron ("y")) continue;
+			if (quote != iron ("Pair")) continue;
 			rate_to_float (rate, bid, ask);
 			clo::ck().quote_time (timest);
 			ra::tes().push (bid, ask);
@@ -148,7 +162,7 @@ work:
 		{
 			if (quote != "QUOTE") continue;
 			input >> quote >> rate >> timest;
-			if (quote != iron ("y")) continue;
+			if (quote != iron ("Pair")) continue;
 			rate_to_float (rate, bid, ask);
 			clo::ck().quote_time (timest);
 			ra::tes().push (bid, ask);

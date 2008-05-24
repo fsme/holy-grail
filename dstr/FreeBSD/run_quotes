@@ -1,0 +1,20 @@
+#!/bin/sh
+# $Id$
+
+# Add the following line to /etc/rc.conf to enable Holy-Grail Quotes:
+#
+#  quotes_enable="YES"
+#  quotes_flags="-c /path/to/config -l syslog_ident"
+
+. "/etc/rc.subr"
+
+# Set some defaults
+quotes_flags=${quotes_flags:-"-c /usr/local/etc/quotes.conf.dist -l quotes"}
+
+name=quotes
+rcvar=`set_rcvar`
+load_rc_config $name
+command=/usr/local/bin/quotes
+stop_cmd="killall -TERM quotes"
+
+run_rc_command "$1"

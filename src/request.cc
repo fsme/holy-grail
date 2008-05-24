@@ -12,7 +12,7 @@ using namespace std;
 namespace re {
 
 const string query::APIHost ("https://api.efxnow.com");
-const string query::Demo ("/DEMOWebServices2.8/Service.asmx");
+const string query::DemoAPIPath ("/DEMOWebServices2.8/Service.asmx");
 const string query::GetTime ("/GetTime?");
 const string query::Echo ("/Echo?Message=");
 const string query::Deal ("/DealRequestAtBest?UserID=");
@@ -22,9 +22,6 @@ const string query::Pair("&Pair=");
 const string query::Buy ("&BuySell=B");
 const string query::Sell("&BuySell=S");
 const string query::Amount("&Amount=");
-
-const string query::GetPositionBlotter("/GetPositionBlotter?Key=");
-const string query::GetMarginBlotter("/GetMarginBlotter?Key=");
 
 //
 mem::parser*
@@ -45,7 +42,7 @@ mem::parser*
 //
 void flush_response ( const string comment_, const string data_ )
 {
-	ofstream bakfile ( iron ("fx_http_response_log").c_str(), ios::app);
+	ofstream bakfile ( iron ("HTTPLog").c_str(), ios::app);
 	if ( !bakfile.is_open ())
 	{
 		if (logs << error)

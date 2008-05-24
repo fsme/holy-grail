@@ -21,7 +21,7 @@ LDLIBS+= -lcurl -lxml2 -lboost_thread
 
 ALL= rtd trade balance
 
-all: trade
+all: $(ALL)
 
 #
 $(LIBCXX)/logostream/logostream.o:
@@ -178,6 +178,8 @@ trade: $(TRADE_OBJ)
 ##---------
 BALANCE_SRC=\
 	 balance.cc\
+	 request.h\
+	 synchron.h\
 	 $(LIBCXX)/logostream/logostream.hpp\
 	 $(LIBCXX)/env/iron.h\
 #
