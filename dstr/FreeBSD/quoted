@@ -1,0 +1,24 @@
+#!/bin/sh
+# $Id$
+
+#  PROVIDE: quoted
+#  REQUIRE: DAEMON
+#
+# Add the following line to /etc/rc.conf to enable Quotes:
+#
+#  quoted_enable="YES"
+#  quoted_flags="-c /path/to/config -l syslog_ident"
+
+. "/etc/rc.subr"
+
+# Set some defaults
+quoted_flags=${quoted_flags:-"-c /usr/local/etc/quoted.conf -l quoted"}
+
+name="quoted"
+rcvar=${name}_enable
+load_rc_config ${name}
+command=/usr/local/bin/quoted
+pidfile=/var/run/quoted.pid
+stop_cmd="killall -TERM quoted"
+
+run_rc_command "$1"
