@@ -322,6 +322,13 @@ private:
 ///\brief Make deal, check out position
 void make_deal ();
 
+///\brief Fix up result
+void fix_up_result ();
+
+///\brief Open position now
+void force_open_position ( bool long_///\param long_ True = Long; False = Short 
+);
+
 ///\name Data fileds
 ///{@
 delta_unit	front_adder; ///< Front-end summ unit

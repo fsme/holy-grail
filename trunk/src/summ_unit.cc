@@ -108,6 +108,39 @@ void unit::rehash (
 
 //
 inline
+void unit::fix_up_result ()
+{
+	if (_position->is_real() ) _real_profit += _position->profit();
+
+	if (_position->profit() != 0)
+		if (_position->profit() > 0) ++_prophet; else --_prophet;
+
+	_profit += _position->profit();
+
+	_proph.push (_position->profit());
+
+	if (logs << info)
+		logs << "Size=" << size() << " History="; print_history ();
+
+	if (logs << info)
+		logs << " Profit=" << _position->profit()
+			 << " Real=" << boolalpha << _position->is_real()
+			 << endl;
+}
+
+//
+void unit::force_open_position ( bool long_ )
+{
+	delete _position; 
+	if (long_)
+		_position = new deal::buy (0, is_cool ());
+	else
+		_position = new deal::sell(0, is_cool ());
+	_position->open ();
+	_position->trail_target (12, 100.0);
+}
+
+//
 void unit::make_deal ()
 {
 	if ( ( last_delta() > 15 || last_delta() < -15)
@@ -115,28 +148,37 @@ void unit::make_deal ()
 	) {
 		if ( _position->is_open ())
 		{
-			if (_position->is_long())
-			{
-				if (last_delta() > 0) _position->trail_target (12, 100.0);
-				else
-					;// u turn position
-
-			} else { // is_short
-
-				if (last_delta() < 0) _position->trail_target (12, 100.0);
-				else
-					;// u turn position
-			}
 			if (logs << info)
 				logs << " CASH IN ON for open"
 					 << " Long=" << boolalpha << _position->is_long()
 					 << " Delta="<< last_delta()
 					 << " Lacuna=" << clo::ck().lacuna();
 
+			if (_position->is_long())
+			{
+				if (last_delta() > 0) _position->trail_target (12, 100.0);
+				else {
+					_position->close();
+					fix_up_result ();
+					force_open_position (false);
+				}
+
+			} else { // is_short
+
+				if (last_delta() < 0) _position->trail_target (12, 100.0);
+				else {
+					_position->close();
+					fix_up_result ();
+					force_open_position (true);
+				}
+			}
+
 		} else { // not is_open 
 
 			if ( _position->is_closed() )
 			{
+				fix_up_result ();
+				force_open_position (last_delta() > 0);
 				if (logs << info)
 					logs << " CASH IN ON for closed"
 						 << " Delta="<< last_delta()
@@ -146,23 +188,16 @@ void unit::make_deal ()
 				{
 					if (logs << info)
 						logs << " CASH IN ON for action"
+					 		 << " Long=" << boolalpha << _position->is_long()
 							 << " Delta="<< last_delta()
 							 << " Lacuna=" << clo::ck().lacuna();
+					force_open_position (last_delta() > 0);
 				} else {
-					delete _position;	
-					if (last_delta() < 0)
-					{
-						_position = new deal::sell ( 0, is_cool ());
-						_position->open ();
-						_position->trail_target ( 12, 100.0);
-					} else {
-						_position = new deal::buy ( 0, is_cool ());
-						_position->open ();
-						_position->trail_target ( 12, 100.0);
-					}//fi
-					if (logs << info) logs << " CASH IN ON for idle"
-										   << " Delta="<< last_delta()
-										   << " Lacuna=" << clo::ck().lacuna();
+					if (logs << info)
+						logs << " CASH IN ON for idle"
+						     << " Delta="<< last_delta()
+							 << " Lacuna=" << clo::ck().lacuna();
+					force_open_position (last_delta() > 0);
 				}//fi
 			}//fi
 		}//fi
@@ -171,7 +206,8 @@ void unit::make_deal ()
 		if ( (last_delta() > 10 || last_delta() < -10)
 		&&   clo::ck().lacuna() < 10
 		) if (logs << info) logs << " BLOW"
-					 			 << " Open="<< boolalpha<< _position->is_open()
+					 			 << " Open="<<boolalpha<< _position->is_open()
+					 		 	 << " Long="<<boolalpha<< _position->is_long()
 								 << " Delta="<< last_delta()
 								 << " Lacuna=" << clo::ck().lacuna();
 
@@ -189,26 +225,7 @@ void unit::make_deal ()
 
 	if ( _position->is_closed () && sum() == 0 )
 	{
-		if (_position->is_real() )
-			_real_profit += _position->profit();
-
-		if (_position->profit() != 0)
-			if (_position->profit() > 0) ++_prophet; else --_prophet;
-		_profit += _position->profit();
-
-		_proph.push (_position->profit());
-
-		if (logs << info)
-			logs << "Size=" << size()
-				 << " History=";
-
-		print_history ();
-
-		if (logs << info)
-			logs << " Profit=" << _position->profit()
-				 << " Real=" << boolalpha << _position->is_real()
-				 << endl;
-
+		fix_up_result();
 		delete _position;
 		_position = new deal::idle;
 	}
