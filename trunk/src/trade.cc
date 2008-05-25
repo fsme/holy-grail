@@ -109,16 +109,12 @@ try {
 	iron.getenv ("HOME");
 	iron.configure ( iron ("HOME")+"/etc/"+iron("c") );
 
+	logs.open ( iron ("SysLogIdent").c_str());
 	logs.level (level_debug);
-	if ( iron.exists ("l"))
-	{
-		logs.open ( iron ("SysLogIdent").c_str() );
-		if (logs << info)
-		{
-			time_t now_;
-			::time ( &now_);
-			logs << "Start at " << ::ctime (&now_) << endl;
-		}
+	if (logs << info) {
+		time_t now_;
+		::time ( &now_);
+		logs << "Start at " << ::ctime (&now_) << endl;
 	}
 
 	fx::multi::factor ( iron ("Pair"));
@@ -134,6 +130,7 @@ try {
 
 	::srand ( ::time (NULL) );
 
+	clo::ck();
 	re::que::st();
 
 	std::string quote, rate, timest;
