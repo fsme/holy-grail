@@ -131,7 +131,7 @@ try {
 	::srand ( ::time (NULL) );
 
 	clo::ck();
-	re::que::st();
+	re::que::st().timeout (60);
 
 	std::string quote, rate, timest;
 	float bid, ask;

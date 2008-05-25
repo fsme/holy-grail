@@ -36,6 +36,12 @@ query ()
 	get_server_time ();
 }
 
+///\brief Set timeout
+void timeout ( const int32_t sec_///\param sec_ Timeout
+) {
+	HttpGet.timeout ( sec_);
+}
+
 ///\brief Get server time
 void get_server_time ()
 {
