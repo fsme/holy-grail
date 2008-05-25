@@ -52,13 +52,20 @@ void init (
 	curl = ::curl_easy_init ();
 	if (!curl) throw runtime_error ("cURL init fail");
 
-	::curl_easy_setopt (curl, CURLOPT_TIMEOUT, 10); 
 	::curl_easy_setopt (curl, CURLOPT_SSL_VERIFYPEER, false);
 	::curl_easy_setopt (curl, CURLOPT_SSL_VERIFYHOST, false);
   	::curl_easy_setopt (curl, CURLOPT_USERAGENT, "RoboTrade/1.0");
   	::curl_easy_setopt (curl, CURLOPT_WRITEFUNCTION, resp.get_write_func() );
 
+	timeout (10);
 	setURL (req_);
+}
+
+///\brief Set timeout
+void timeout (
+	const int32_t sec_ ///\param sec_ Timeout 
+) {
+	::curl_easy_setopt (curl, CURLOPT_TIMEOUT, sec_ ); 
 }
 
 ///\brief Set new URL

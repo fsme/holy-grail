@@ -64,6 +64,7 @@ try {
 	iron.configure ( iron ("HOME")+"/etc/"+iron("c") );
 
 	clo::ck();
+	re::que::st().timeout (60);
 	std::stringstream blotter ( re::que::st().get_margin());
 
 	std::string line;
