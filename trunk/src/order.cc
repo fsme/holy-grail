@@ -30,7 +30,7 @@ bool order::lock_for_real ( const bool lock_ )
 	}
 
 	if ( env::iron.exists ("r")
-	&&  ( clo::ck().realtime() < -3 || clo::ck().realtime() > 1 )
+	&&  ( clo::ck().realtime() < 7 || clo::ck().realtime() > 10 )
 	)	{
 		if (logs << info)
 			logs << "Lock refuse because realtime=" << clo::ck().realtime()
