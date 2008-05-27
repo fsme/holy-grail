@@ -269,7 +269,7 @@ int32_t
 bool
 	is_cool () const
 {
-	return size() == 69;
+	return size() == 69 || size() == 75;
 }
 
 ///\brief Amount of lucrative deals
@@ -353,7 +353,7 @@ int32_t	_real_profit;
 int32_t	_prophet;
 int32_t	_rating;
 
-fi::fo<int32_t> _last;
+fi::fo<int32_t> _last; ///< Sum of sum
 
 deal::order*	_position;
 history			_proph;
