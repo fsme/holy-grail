@@ -83,14 +83,14 @@ int
 	::signal (SIGINT, sig_action);
 
 try {
-	ti::meter total ("Uptime (sec): ");
 	logs.level (level_debug);
+	ti::meter total ("Uptime (sec): ");
 
 	if (argc < 2)
 	throw invalid_argument ("Usage: trade -r -c /path/to/config /path/to/quotes.log|-");
 
-	///< c - config file; r - realdeal;
-	env::iron.getopt (argc, argv,"c:r");
+	///< c - config file; r - realdeal; o - output to stdout
+	env::iron.getopt (argc, argv,"c:or");
 
 	if ( !iron.exists ("c"))
 	{
@@ -109,12 +109,16 @@ try {
 	iron.getenv ("HOME");
 	iron.configure ( iron ("HOME")+"/etc/"+iron("c") );
 
-	logs.open ( iron ("SysLogIdent").c_str());
-	logs.level (level_debug);
-	if (logs << info) {
-		time_t now_;
-		::time ( &now_);
-		logs << "Start at " << ::ctime (&now_) << endl;
+	if ( !iron.exists ("o"))
+	{
+		logs.open ( iron ("SysLogIdent").c_str());
+		logs.level (level_debug);
+		if (logs << info)
+		{
+			time_t now_;
+			::time ( &now_);
+			logs << "Start at " << ::ctime (&now_) << endl;
+		}
 	}
 
 	fx::multi::factor ( iron ("Pair"));

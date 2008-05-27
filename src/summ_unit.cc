@@ -119,10 +119,10 @@ void unit::fix_up_result ()
 
 	_proph.push (_position->profit());
 
-	if (logs << info)
+	if (logs << debug)
 		logs << "Size=" << size() << " History="; print_history ();
 
-	if (logs << info)
+	if (logs << debug)
 		logs << " Profit=" << _position->profit()
 			 << " Real=" << boolalpha << _position->is_real()
 			 << endl;

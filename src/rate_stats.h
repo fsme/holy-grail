@@ -35,8 +35,9 @@ rates ()
 	: _profit (0)
 {
 
-	//for (int i = ra::tes().delta().max_size(); i > 33; --i )
+//	for (int i = ra::tes().delta().max_size(); i > 33; --i )
 		ds_units.push_back ( summ::unit (69));
+		ds_units.push_back ( summ::unit (75));
 }
 
 ///\brief Destroy
@@ -73,21 +74,21 @@ void transit ()
 		_profit += adder->real_profit();
 
 	 	if (  adder->is_ready () && adder->sum () == 0) srt = true;
-		if ( !adder->is_ready () || ++num > 6 ) continue;
+		if ( !adder->is_ready () || ++num > 9 ) continue;
 
 	if (logs << info)
 		logs << " #" << adder->size()
-			 << " {" << adder->sum() << "}" 
+	//		 << " {" << adder->sum() << "}" 
 			 << " $" << adder->profit();
 
-	if ( adder->forecast() > 0 )
-		logs << " <" << adder->forecast() << "|" << adder->direct() << "> ";
+//	if ( adder->forecast() > 0 )
+//		logs << " <" << adder->forecast() << "|" << adder->direct() << "> ";
 
 	}//for
 
 ///	if (prof_ != profit()
 	if (logs << info)
-	 	logs << " [" << profit() << "] " << "Realtime=" << clo::ck().realtime() <<  endl;
+	 	logs << " [" << profit() << "] " << "RT(" << clo::ck().realtime() << ")"  endl;
 
 
 	if (srt)
