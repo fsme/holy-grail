@@ -87,7 +87,7 @@ void transit ()
 
 ///	if (prof_ != profit()
 	if (logs << info)
-	 	logs << " [" << profit() << "]" << endl;
+	 	logs << " [" << profit() << "] " << "Realtime=" << clo::ck().realtime() <<  endl;
 
 
 	if (srt)
